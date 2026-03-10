@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36915.13
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HugoLand.Core", "HugoLand.Core\HugoLand.Core.csproj", "{26037DE2-3192-4F8D-90E0-FD227866FEF7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HugoLandConsole", "HugoLandConsole\HugoLandConsole.csproj", "{9DCFC259-25A9-4173-A8DB-487C850F3E09}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HugoLand.Console", "HugoLand.Console\HugoLand.Console.csproj", "{D17E9DF8-A635-4A54-99E6-F46EA022C766}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HugoLandCore", "HugoLandCore\HugoLandCore.csproj", "{B69C99F7-579A-4A1F-B319-E03C60AC757A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,14 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{26037DE2-3192-4F8D-90E0-FD227866FEF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{26037DE2-3192-4F8D-90E0-FD227866FEF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{26037DE2-3192-4F8D-90E0-FD227866FEF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{26037DE2-3192-4F8D-90E0-FD227866FEF7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D17E9DF8-A635-4A54-99E6-F46EA022C766}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D17E9DF8-A635-4A54-99E6-F46EA022C766}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D17E9DF8-A635-4A54-99E6-F46EA022C766}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D17E9DF8-A635-4A54-99E6-F46EA022C766}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DCFC259-25A9-4173-A8DB-487C850F3E09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DCFC259-25A9-4173-A8DB-487C850F3E09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DCFC259-25A9-4173-A8DB-487C850F3E09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DCFC259-25A9-4173-A8DB-487C850F3E09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B69C99F7-579A-4A1F-B319-E03C60AC757A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B69C99F7-579A-4A1F-B319-E03C60AC757A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B69C99F7-579A-4A1F-B319-E03C60AC757A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B69C99F7-579A-4A1F-B319-E03C60AC757A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

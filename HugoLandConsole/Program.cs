@@ -1,4 +1,4 @@
-﻿namespace Conquest
+﻿namespace HugoLandConsole
 {
     internal class Program
     {

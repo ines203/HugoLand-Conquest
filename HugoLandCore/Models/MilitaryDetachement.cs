@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HugoLand.Core.Models
 {
-    internal class MilitaryDetachement
+    public class MilitaryDetachement
     {
     }
 }

@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace HugoLand.Core.Data
 {
-    internal class HugoLandContext
+    public class HugoLandContext
     {
+
     }
 }

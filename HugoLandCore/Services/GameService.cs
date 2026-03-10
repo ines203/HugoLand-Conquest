@@ -1,4 +1,6 @@
-﻿using System;
+﻿using HugoLand.Core.Data;
+using HugoLand.Core.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +8,27 @@ using System.Threading.Tasks;
 
 namespace HugoLand.Core.Services
 {
-    internal class GameService
+    public class GameService
     {
+        private readonly HugoLandContext _context;
+
+        public gameService(HugoLandContext context)
+        {
+            _context = context;
+        }
+
+        // Méthodes
+        public void CreateGame()
+        {
+
+        }
+        public void LoadGame()
+        {
+
+        }
+        public void EndTurn()
+        {
+
+        }
     }
 }

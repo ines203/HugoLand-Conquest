@@ -11,8 +11,8 @@ internal class Program
 {
     static void Main(string[] args)
     {
-
-            Console.WriteLine("Bienvenue dans HugoLand!");
+        //Test de L'affichage
+        GameDisplay.DisplayMap(player: true, turn: 7, gold: 100, fortif: 5, troops: 20);
 
         //Section donné dans l'énoncé
 

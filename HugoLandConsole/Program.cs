@@ -3,6 +3,10 @@ using HugoLand.Core.Models;
 
 namespace HugoLandConsole
 {
+    /// <summary>
+    /// Description : Point d'entrée de l'application console pour HugoLand.
+    /// Date : 2026-03-10
+    /// </summary>
     internal class Program
     {
         static void Main(string[] args)

@@ -1,4 +1,6 @@
-﻿using HugoLand.Core.Services;
+﻿using HugoLandCore.Data;
+using Microsoft.EntityFrameworkCore;
+using HugoLandCore.Services;
 using HugoLandCore.Models;
 
 namespace HugoLandConsole;
@@ -11,8 +13,17 @@ internal class Program
 {
     static void Main(string[] args)
     {
-        //Test de L'affichage
-        GameDisplay.DisplayMap(player: true, turn: 7, gold: 100, fortif: 5, troops: 20);
+        var options = new DbContextOptionsBuilder<HugoLandContext>()
+        .UseInMemoryDatabase("HugoLandDB")
+        .Options;
+
+        var db = new HugoLandContext(options);
+
+        db.Database.EnsureCreated();
+
+        // Test pour voir si la base de données est bien créée et accessible, si 16 = fonctionne, si 0 = ne fonctionne pas
+        Console.WriteLine($"Nombre de territoires : {db.Territories.Count()}");
+        Console.ReadLine();
 
         //Section donné dans l'énoncé
 

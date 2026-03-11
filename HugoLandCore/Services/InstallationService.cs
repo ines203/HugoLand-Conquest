@@ -1,4 +1,4 @@
-﻿using HugoLand.Core.Data;
+﻿using HugoLandCore.Data;
 using HugoLandCore.Models;
 
 namespace HugoLandCore.Services;

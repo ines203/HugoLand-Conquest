@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
-namespace HugoLand.Core.Data
+namespace HugoLand.Core.Data;
+
+public class HugoLandContext
 {
-    public class HugoLandContext
-    {
 
-    }
 }

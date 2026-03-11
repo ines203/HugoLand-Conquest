@@ -1,34 +1,28 @@
 ﻿using HugoLand.Core.Data;
-using HugoLand.Core.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using HugoLandCore.Models;
 
-namespace HugoLand.Core.Services
+namespace HugoLand.Core.Services;
+
+public class GameService
 {
-    public class GameService
+    private readonly HugoLandContext _context;
+
+    public GameService(HugoLandContext context)
     {
-        private readonly HugoLandContext _context;
+        _context = context;
+    }
 
-        public GameService(HugoLandContext context)
-        {
-            _context = context;
-        }
+    // Méthodes
+    public void CreateGame()
+    {
 
-        // Méthodes
-        public void CreateGame()
-        {
+    }
+    public void LoadGame()
+    {
 
-        }
-        public void LoadGame()
-        {
+    }
+    public void EndTurn()
+    {
 
-        }
-        public void EndTurn()
-        {
-
-        }
     }
 }

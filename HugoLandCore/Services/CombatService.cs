@@ -1,26 +1,20 @@
 ﻿using HugoLand.Core.Data;
-using HugoLand.Core.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using HugoLandCore.Models;
 
-namespace HugoLand.Core.Services
+namespace HugoLand.Core.Services;
+
+public class CombatService
 {
-    public class CombatService
+    private readonly HugoLandContext _context;
+
+    public CombatService(HugoLandContext context)
     {
-        private readonly HugoLandContext _context;
+        _context = context;
+    }
 
-        public CombatService(HugoLandContext context)
-        {
-            _context = context;
-        }
+    // Méthodes
+    public void ResolveCombat()
+    {
 
-        // Méthodes
-        public void ResolveCombat()
-        {
-
-        }
     }
 }

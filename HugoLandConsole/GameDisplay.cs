@@ -1,6 +1,10 @@
 ﻿using HugoLandCore.Data;
 using HugoLandCore.Models;
+using Microsoft.Extensions.Options;
 using System;
+using System.Collections;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace HugoLandConsole;
 /// <summary>
@@ -28,9 +32,10 @@ internal class GameDisplay
     /// <param name="MapHeight">Height of the map (number of rows)</param>
     public void DisplayMap(Game game, Player player, Map map, in List<Installation>installations, in List<MilitaryDetachment>detachments)// in == (const type &param) in C++
     {
-        int nbFortif = 2;
-        //int nbFortif = installations
-        //    .Count(i => i.Territory.MapId == map.Id && i.PlayerId == player.Id);
+        Console.Clear();
+
+        int nbFortif = installations
+            .Count(i => i.Territory.MapId == map.Id /*&& i.PlayerId == player.Id*/);
 
         int nbTroop = detachments
             .Where(d => d.PlayerId == player.Id)
@@ -54,7 +59,6 @@ internal class GameDisplay
             Console.Write(j.ToString().PadLeft(6));
         }
 
-        //
         Console.WriteLine();
         for (int i = 0; i < map.Height; ++i)
         {
@@ -66,13 +70,187 @@ internal class GameDisplay
             Console.Write(" ");
             for (int j = 0; j < map.Height; j++)
             {
+                string text = "     ";
                 Console.Write("|");
-                Console.Write("     ");
+
+                Territory? territory = map.Territories.FirstOrDefault(t => t.X == j && t.Y == i);
+
+                if (territory.Detachment.PlayerId == player.Id)
+                    Console.ForegroundColor = ConsoleColor.Green;
+                else
+                    Console.ForegroundColor = ConsoleColor.Red;
+
+                if (territory.Installation.Type == InstallationType.Camp)
+                    text += "(";
+                else if (territory.Installation.Type == InstallationType.Fortification)
+                    text += "[";
+                else
+                    text += " ";
+
+                if (territory.Detachment != null)
+                {
+                    if (territory.Detachment.Force <= 999)
+                        text += territory.Detachment.Force.ToString();
+                    else
+                        text += "999";
+                }
+
+                if (territory.Installation.Type == InstallationType.Camp)
+                    text += ")";
+                else if (territory.Installation.Type == InstallationType.Fortification)
+                    text += "]";
+                else
+                    text += " ";
+
+                Console.Write(text.PadLeft(5));
+
+                Console.ForegroundColor = ConsoleColor.Gray;
             }
             Console.WriteLine("|");
         }
         //    +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
         DisplayHorizontalLine(map.Width);
+        Console.WriteLine();
+    }
+
+    public void DisplayPlayerState(Player player, Game game)
+    {
+        //int earnings = player.Detachments.Sum(d => d.Force) * 5 + player.Installations.Count(i => i.Type == InstallationType.Fortification) * 10;
+        int earnings = 7;// testing
+        int maintenance = 5;// testing
+        int nbArmies = 7;// testing
+        int nbForces = 35;// testing
+        int nbForts = 2;// testing
+
+        Console.ForegroundColor = ConsoleColor.DarkGray;
+        Console.WriteLine("═══════════════════════════════════════════════════");
+
+        Console.Write("Joueur ");
+        if (player.Id == 0)// If player A
+            Console.Write("A");
+        else// If player B
+            Console.Write("B");
+        Console.WriteLine(" - Tour " + game.TurnNumber);
+
+        Console.WriteLine("Gold: " + player.Gold.ToString().PadLeft(10) +
+            "Earnings: +" + earnings.ToString().PadLeft(3) +
+            "/ turn     Maintenance: -" + maintenance.ToString().PadLeft(4) + "/ turn");
+
+        Console.WriteLine("Armies: " + nbArmies.ToString().PadLeft(8) + 
+            "Total force: " + nbForces.ToString().PadLeft(3) +
+            "     Fortifications: " + nbForts);
+
+        Console.WriteLine("Debt: " + player.DebtTurns.ToString().PadLeft(2) + " turn(s)");
+
+        Console.WriteLine("═══════════════════════════════════════════════════");
+    }
+
+    /*
+    public void ShowArmyChoice(Player player, Map map, List<MilitaryDetachment> detachments)
+    {
+        bool success = false;
+        int x = 0;
+        int y = 0;
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.WriteLine();
+        do
+        {
+            Console.WriteLine("Choose an army to move (x y): ");
+            string input = Console.ReadLine();
+            string[] parts = input.Split(' ');
+
+            if (parts.Length != 2)
+            {
+                success = false;
+                Removelastline();
+                Removelastline();
+                Console.WriteLine("Invalid input. Please enter two integers separated by a space.");
+            }
+            else
+            {
+                success = int.TryParse(parts[0], out x) && int.TryParse(parts[1], out y);
+                if (success == false)
+                {
+                    Removelastline();
+                    Removelastline();
+                    Console.WriteLine("Invalid input. Please enter two integers separated by a space.");
+                }
+                else
+                {
+                    if (x > map.Width || x <= 0 || y > map.Height || y <= 0)
+                    {
+                        Removelastline();
+                        Removelastline();
+                        Console.WriteLine("Invalid input. Coordinates must be within the map boundaries.");
+                        success = false;
+                    }
+                    else// if the input is valid, we can check if there is an army at the coordinates
+                    {
+                        MilitaryDetachment? detachment = detachments.FirstOrDefault(d => d.PlayerId == player.Id && d.Territory.X == x && d.Territory.Y == y);
+                        if (detachment == null)
+                        {
+                            Removelastline();
+                            Removelastline();
+                            Console.WriteLine("Invalid input. There is no army at the given coordinates.");
+                            success = false;
+                        }
+                        else
+                        {
+                            Console.WriteLine("You have chosen the army at (" + x + ", " + y + ") with force " + detachment.Force);
+                            success = true;
+                        }
+                    }
+                }
+            }
+        } while (success == false);
+    }
+    */
+
+    public int DisplayArmyActions(Player player, MilitaryDetachment detachment)
+    {
+        bool success = false;
+
+        Console.ForegroundColor = ConsoleColor.DarkGray;
+        Console.WriteLine($"--- Army in ({detachment.Territory.X}, {detachment.Territory.Y})" +
+            $" - {detachment.Force} troops, {detachment.Energy} energy ---");
+        Console.WriteLine("  Actions available:");
+        Console.WriteLine("    [1] Move");
+        Console.Write("    [2] Build a camp          (20 gold)");
+        if (detachment.Territory.Installation != null)
+            Console.WriteLine("   — Impossible: installation already present");
+        else
+            Console.WriteLine();
+        Console.WriteLine("    [3] Convert to fortification  (50 gold)");
+        if (detachment.Territory.Installation != null && detachment.Territory.Installation.Type == InstallationType.Fortification)
+            Console.WriteLine("   — Impossible: already a fortification");
+        else
+            Console.WriteLine();
+        Console.WriteLine("    [4] Reinforce                   (2 gold/soldier)");
+        Console.WriteLine("    [5] Split the army");
+        Console.WriteLine("    [6] Pass (do nothing)");
+        Console.WriteLine();
+        do
+        {
+            Console.Write("  Choice: ");
+            success = int.TryParse(Console.ReadLine(), out int choice);
+            if (success == false || choice < 1 || choice > 6)
+            {
+                Removelastline();
+                Removelastline();
+                Console.WriteLine("Invalid input. Please enter a number between 1 and 6.");
+                success = false;
+            }
+            else
+                return choice;
+        } while (success == false);
+        return 0;// This line will never be reached, but it is necessary to compile the code
+    }
+
+    private void Removelastline()
+    {
+        Console.SetCursorPosition(0, Console.CursorTop - 1);
+        Console.Write(new string(' ', Console.WindowWidth));
+        Console.SetCursorPosition(0, Console.CursorTop - 1);
     }
 
     private void DisplayHorizontalLine(in int MapWidth)

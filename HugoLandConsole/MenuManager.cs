@@ -1,7 +1,5 @@
 ﻿
 
-namespace HugoLand.Console;
-
 namespace HugoLand.Console
 {
     /// <summary>

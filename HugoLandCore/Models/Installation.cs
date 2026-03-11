@@ -1,12 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using HugoLandCore.Models;
 
-namespace HugoLandCore.Models
+namespace HugoLandCore.Models;
+
+public enum InstallationType
 {
-    public class Instalation
-    {
-    }
+    Camp = 0,
+    Fortification = 1
+}
+
+public class Installation
+{
+    public int Id { get; set; }
+    public InstallationType Type { get; set; }
+
+    public int TerritoryId { get; set; }
+    public Territory? Territory { get; set; }
 }

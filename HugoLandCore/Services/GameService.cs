@@ -12,7 +12,7 @@ namespace HugoLand.Core.Services
     {
         private readonly HugoLandContext _context;
 
-        public gameService(HugoLandContext context)
+        public GameService(HugoLandContext context)
         {
             _context = context;
         }

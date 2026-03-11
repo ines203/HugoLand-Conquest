@@ -11,14 +11,16 @@ namespace HugoLandConsole
 
 
             //Section donné dans l'énoncé
-            Console.Write("Direction (N/S/E/O) : ");
-            var dir = Console.ReadLine();
-            var dest = /* trouver le territoire adjacent */;
 
-            if (ArmyService.TryMove(army, dest))
-                Console.WriteLine("Déplacement réussi.");
-            else
-                Console.WriteLine("Déplacement impossible.");
+            //Console.Write("Direction (N/S/E/O) : ");
+            //var dir = Console.ReadLine();
+            //var dest = /* trouver le territoire adjacent */;
+
+            //if (ArmyService.TryMove(army, dest))
+            //    Console.WriteLine("Déplacement réussi.");
+            //else
+            //    Console.WriteLine("Déplacement impossible.");
+
             //Fin de section donné dans l'énoncé
         }
     }

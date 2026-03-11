@@ -18,16 +18,18 @@ namespace HugoLand.Core.Services
         }
 
         //Section donné dans l'énoncé
-        public bool TryMove(MilitaryDetachment army, Territory destination)
-        {
-            if (army.Force < 10) return false;             // Détachement isolé
-            if (army.Energy < destination.MovementCost) return false;
 
-            army.TerritoryId = destination.Id;
-            army.Energy -= destination.MovementCost;
-            _context.SaveChanges();
-            return true;
-        }
+        //public bool TryMove(MilitaryDetachment army, Territory destination)
+        //{
+        //    if (army.Force < 10) return false;             // Détachement isolé
+        //    if (army.Energy < destination.MovementCost) return false;
+
+        //    army.TerritoryId = destination.Id;
+        //    army.Energy -= destination.MovementCost;
+        //    _context.SaveChanges();
+        //    return true;
+        //}
+
         //Fin de section donné dans l'énoncé
 
         // Méthodes

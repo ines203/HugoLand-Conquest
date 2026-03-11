@@ -13,4 +13,18 @@ public class MilitaryDetachment
 
     public int TerritoryId { get; set; }
     public Territory? Territory { get; set; }
+
+    //pour ef core
+    protected MilitaryDetachment() { }
+
+
+    public static MilitaryDetachment Create(int territory_id, int force, int energy)
+    {
+        return new MilitaryDetachment
+        {
+            TerritoryId = territory_id,
+            Force = force,
+            Energy = energy
+        };
+    }
 }

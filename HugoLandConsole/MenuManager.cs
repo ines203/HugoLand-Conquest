@@ -1,6 +1,5 @@
 ﻿
-
-namespace HugoLand.Console;
+namespace HugoLandConsole;
 
 /// <summary>
 /// Description : Classe responsable de la gestion des menus et de la saisie utilisateur dans la console.

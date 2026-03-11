@@ -1,8 +1,6 @@
 ﻿
+namespace HugoLandCore.Data;
 
-namespace HugoLand.Core.Data;
-
-public class Seed
+internal class Seed
 {
-
 }

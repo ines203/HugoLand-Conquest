@@ -1,12 +1,12 @@
-﻿using HugoLand.Core.Data;
-using HugoLand.Core.Models;
+﻿using HugoLandCore.Data;
+using HugoLandCore.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HugoLand.Core.Services
+namespace HugoLandCore.Services
 {
     public class ArmyService
     {
@@ -38,6 +38,10 @@ namespace HugoLand.Core.Services
 
         }
         public void TrySplit()
+        {
+
+        }
+        private void SaveChanges()
         {
 
         }

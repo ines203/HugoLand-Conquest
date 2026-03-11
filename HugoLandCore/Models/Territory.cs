@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HugoLand.Core.Models
+namespace HugoLandCore.Models
 {
     public class Territory
     {

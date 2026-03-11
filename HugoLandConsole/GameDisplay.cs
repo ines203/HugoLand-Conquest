@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HugoLand.Console
+namespace HugoLandConsole
 {
     /// <summary>
     /// Description : Classe responsable de l'affichage de la grille et de l'état du jeu dans la console.
@@ -12,5 +12,11 @@ namespace HugoLand.Console
     /// </summary>
     internal class GameDisplay 
     {
+
+        public void DisplayMap()
+        {
+            Console.WriteLine();
+            // TODO : Implémenter l'affichage de la grille et de l'état du jeu
+        }
     }
 }

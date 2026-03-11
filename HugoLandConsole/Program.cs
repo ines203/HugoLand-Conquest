@@ -1,5 +1,5 @@
-﻿using HugoLand.Core.Services;
-using HugoLand.Core.Models;
+﻿using HugoLandCore.Services;
+using HugoLandCore.Models;
 
 namespace HugoLandConsole
 {
@@ -12,7 +12,7 @@ namespace HugoLandConsole
         static void Main(string[] args)
         {
 
-
+            Console.WriteLine("Bienvenue dans HugoLand!");
 
             //Section donné dans l'énoncé
 

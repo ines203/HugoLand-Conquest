@@ -1,5 +1,5 @@
-﻿using HugoLand.Core.Data;
-using HugoLand.Core.Models;
+﻿using HugoLandCore.Data;
+using HugoLandCore.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +23,10 @@ namespace HugoLandCore.Services
 
         }
         public void UpgradeToFort()
+        {
+
+        }
+        private void SaveChanges()
         {
 
         }

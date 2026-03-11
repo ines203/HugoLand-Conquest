@@ -51,19 +51,19 @@ public class ArmyService
         {
             case 0:
                 new_territory_id = army.TerritoryId; // + width
-                new_detachment = army.Create(new_territory_id, split_qty, army.Energy);
+                new_detachment = MilitaryDetachment.Create(new_territory_id, split_qty, army.Energy);
                 break;
             case 1:
                 new_territory_id = army.TerritoryId; // + 1
-                new_detachment = army.Create(new_territory_id, split_qty, army.Energy);
+                new_detachment = MilitaryDetachment.Create(new_territory_id, split_qty, army.Energy);
                 break;
             case 2:
                 new_territory_id = army.TerritoryId; // - width
-                new_detachment = army.Create(new_territory_id, split_qty, army.Energy);
+                new_detachment = MilitaryDetachment.Create(new_territory_id, split_qty, army.Energy);
                 break;
             case 3:
                 new_territory_id = army.TerritoryId; // - 1
-                new_detachment = army.Create(new_territory_id, split_qty, army.Energy);
+                new_detachment = MilitaryDetachment.Create(new_territory_id, split_qty, army.Energy);
                 break;
             default:
                 break;

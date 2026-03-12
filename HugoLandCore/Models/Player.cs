@@ -14,4 +14,6 @@ public class Player
 
     public ICollection<MilitaryDetachment> Detachments { get; set; } = new List<MilitaryDetachment>();
     public ICollection<PlayerAction> Actions { get; set; } = new List<PlayerAction>();
+
+    public ICollection<Installation> Installations { get; set; } = new List<Installation>();
 }

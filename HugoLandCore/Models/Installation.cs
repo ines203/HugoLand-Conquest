@@ -28,6 +28,7 @@ public class Installation
         }
     }
 
+    public bool IsOccupied { get; set; }
     public int TerritoryId { get; set; }
     public Territory? Territory { get; set; }
     public bool PlayerId { get; set; }

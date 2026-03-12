@@ -30,12 +30,26 @@ public class EconomyService
             }
         }
     }
-    public void CollectRevenue()
+    public void CollectRevenue(int playerId)
     {
+        var player = _context.Players.Find(playerId);
 
+        foreach (Installation building in player.Installations)
+        {
+            if (building.IsOccupied && building.Type == InstallationType.Fortification)
+                player.Gold += 5;
+        }
     }
-    public void PayMaintenance()
+    public void PayMaintenance(int playerId)
     {
+        var player = _context.Players.Find(playerId);
 
+        foreach (MilitaryDetachment detachement in player.Detachments)
+        {
+            if (detachement.Force >= 10)
+                player.Gold -= (int)Math.Ceiling((float)(detachement.Force / 10));
+        }
+
+        CheckDebt(playerId);
     }
 }

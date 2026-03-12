@@ -4,7 +4,7 @@ namespace HugoLandCore.Models;
 
 public class Player
 {
-    public int Id { get; set; }
+    public bool Id { get; set; }
     public string Name { get; set; } = "";
     public int Gold { get; set; }
     public int DebtTurns { get; set; }

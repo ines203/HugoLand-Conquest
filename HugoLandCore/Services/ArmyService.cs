@@ -1,5 +1,6 @@
 ﻿using HugoLandCore.Data;
 using HugoLandCore.Models;
+using System;
 using System.Numerics;
 
 namespace HugoLand.Core.Services;
@@ -29,20 +30,14 @@ public class ArmyService
     //Fin de section donné dans l'énoncé
 
     // Méthodes
-    public void TryMove()
-    {
-
-    }
-    public void TrySplit(int armyId, int direction, int split_qty) //direction en int temporairement, ca va surement etre une enum?
+    public void TryMove(int armyId, int direction)
     {
         var army = _context.Detachments.Find(armyId);
         int new_territory_id = 0;
-        MilitaryDetachment new_detachment;
+        Player enemy = null;
 
-        if (army == null || army.Force < 11 || split_qty < 10)
+        if (army == null || army.Force < 11)
             return;
-        army.Force -= split_qty;
-
 
         switch (direction)
         {
@@ -63,24 +58,86 @@ public class ArmyService
                 break;
         }
 
-        army.Actionable = false;
-        new_detachment = MilitaryDetachment.Create(new_territory_id, split_qty, army.Energy, false);
-        new_detachment.Energy -= new_detachment.Territory.TerrainEnergyCost;
-
-        foreach (MilitaryDetachment detach in army.Player.Detachments)
+        foreach (Player player in army.Player.Game.Players)
         {
-            //verify for ally troops
-            if (new_detachment.TerritoryId == detach.TerritoryId)
+            if (player.Id != army.PlayerId)
+                enemy = player;
+        }
+
+        foreach (MilitaryDetachment allies in army.Player.Detachments)
+        {
+            if (allies.TerritoryId == new_territory_id)
             {
-                detach.Force += new_detachment.Force;
-                detach.Energy = new_detachment.Energy <= detach.Energy ? new_detachment.Energy : detach.Energy;
-                //delete new_detachement object
+                TryMerge(army, direction);
             }
         }
 
-        //verify pour combat
+        foreach (MilitaryDetachment enemy_detachment in enemy.Detachments)
+        {
+            if (enemy_detachment.TerritoryId == new_territory_id)
+            {
+                CombatService.ResolveCombat(army, enemy_detachment);
+            }
+        }
+
+        var new_territory = _context.Territories.Find(new_territory_id);
+
+        army.Energy -= new_territory.TerrainEnergyCost;
+        army.Actionable = false;
+    }
+    public void TrySplit(int armyId, int direction, int split_qty) //direction en int temporairement, ca va surement etre une enum?
+    {
+        Player enemy = null;
+        var army = _context.Detachments.Find(armyId);
+        MilitaryDetachment new_detachment;
+        int new_territory_id = 0;
+
+        if (split_qty < 10)
+            return;
+        army.Force -= split_qty;
+
+        switch (direction)
+        {
+            case 0:
+                new_territory_id = army.TerritoryId; // + width
+                break;
+            case 1:
+                new_territory_id = army.TerritoryId; // + 1
+                break;
+            case 2:
+                new_territory_id = army.TerritoryId; // - width
+                break;
+            case 3:
+                new_territory_id = army.TerritoryId; // - 1
+                break;
+            default:
+                return;
+                break;
+        }
+
+        new_detachment = MilitaryDetachment.Create(new_territory_id, split_qty, army.Energy, false);
+        new_detachment.Energy -= new_detachment.Territory.TerrainEnergyCost;
+
+        foreach (Player player in army.Player.Game.Players)
+        {
+            if (player.Id != army.PlayerId)
+                enemy = player;
+        }
+
+        foreach (MilitaryDetachment enemy_detachment in enemy.Detachments)
+        {
+            if (enemy_detachment.TerritoryId == new_territory_id)
+            {
+                CombatService.ResolveCombat(army, enemy_detachment);
+            }
+        }
 
     }
+
+    /// <summary>
+    /// Au debut du tour, s'occupe de fair gagner energie a tt le monde
+    /// </summary>
+    /// <param name="armyId"></param>
     public void GainEnergy(int armyId)
     {
         var army = _context.Detachments.Find(armyId);
@@ -100,6 +157,21 @@ public class ArmyService
             army.Energy = 5;
             army.Actionable = false;
         }
-            
+
+    }
+
+    public void TryMerge(MilitaryDetachment army, int direction)
+    {
+
+        foreach (MilitaryDetachment target in army.Player.Detachments)
+        {
+            //verify for ally troops
+            if (target.TerritoryId == army.TerritoryId)
+            {
+                army.Force += target.Force;
+                army.Energy = (target.Energy <= army.Energy) ? target.Energy : army.Energy;
+                //delete army object
+            }
+        }
     }
 }

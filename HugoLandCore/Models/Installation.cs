@@ -30,4 +30,6 @@ public class Installation
 
     public int TerritoryId { get; set; }
     public Territory? Territory { get; set; }
+    public bool PlayerId { get; set; }
+    public Player? Player { get; set; }
 }

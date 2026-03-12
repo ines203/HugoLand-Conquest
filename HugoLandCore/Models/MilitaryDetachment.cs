@@ -9,7 +9,7 @@ public class MilitaryDetachment
     public int Energy { get; set; }
     public bool Actionable { get; set; }
 
-    public int PlayerId { get; set; }
+    public bool PlayerId { get; set; }
     public Player? Player { get; set; }
 
     public int TerritoryId { get; set; }

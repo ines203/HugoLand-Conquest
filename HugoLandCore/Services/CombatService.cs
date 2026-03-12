@@ -20,8 +20,7 @@ public class CombatService
     /// </summary>
     /// <param name="army_self">Attacker Instance</param>
     /// <param name="army_enemy">Defender instance</param>
-    /// <param name="attack_territory_id">Where the attacker is coming from</param>
-    public void ResolveCombat(MilitaryDetachment army_self, MilitaryDetachment army_enemy, int attack_territory_id)
+    public static void ResolveCombat(MilitaryDetachment army_self, MilitaryDetachment army_enemy)
     {
         float eff_force_self = army_self.Force * (_rnd.Next(8, 13) / 10);
         float eff_force_enemy = army_enemy.Force * (_rnd.Next(9, 14) / 10) 
@@ -41,9 +40,10 @@ public class CombatService
         army_self.Energy = 0;
         army_enemy.Energy = 0;
 
+
         if (army_self.Force > 10)
         {
-            army_self.TerritoryId = attack_territory_id;
+
         }
     }
 }

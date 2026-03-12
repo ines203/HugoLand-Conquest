@@ -3,12 +3,15 @@ using HugoLandCore.Models;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections;
+using System.Net.Mail;
+using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security.AccessControl;
 
 namespace HugoLandConsole;
 /// <summary>
+/// Author : Justin Ducharme
 /// Description : Classe responsable de l'affichage de la grille et de l'état du jeu dans la console.
 /// Date : 2026-03-10
 /// </summary>
@@ -21,16 +24,6 @@ internal class GameDisplay
         _context = context;
     }
 
-    /// <summary>
-    /// Description : Display the basic game information such as the current player, turn number, gold number, fortification level, and troop count in the console.
-    /// </summary>
-    /// <param name="player">True if player A, false if player B</param>
-    /// <param name="turn">Current turn</param>
-    /// <param name="gold">Number of gold</param>
-    /// <param name="fortif">Number of fortifications that belongs to the player</param>
-    /// <param name="troop">Total number of troops belonging to the player (troops, not armies)</param>
-    /// <param name="MapWidth">Width of the map (number of columns)</param>
-    /// <param name="MapHeight">Height of the map (number of rows)</param>
     public void DisplayMap(Game game, Player player, Map map, in List<Installation>installations, in List<MilitaryDetachment>detachments)// in == (const type &param) in C++
     {
         Console.Clear();
@@ -146,66 +139,6 @@ internal class GameDisplay
         Console.WriteLine("═══════════════════════════════════════════════════");
     }
 
-    /*
-    public void ShowArmyChoice(Player player, Map map, List<MilitaryDetachment> detachments)
-    {
-        bool success = false;
-        int x = 0;
-        int y = 0;
-        Console.ForegroundColor = ConsoleColor.Gray;
-        Console.WriteLine();
-        do
-        {
-            Console.WriteLine("Choose an army to move (x y): ");
-            string input = Console.ReadLine();
-            string[] parts = input.Split(' ');
-
-            if (parts.Length != 2)
-            {
-                success = false;
-                Removelastline();
-                Removelastline();
-                Console.WriteLine("Invalid input. Please enter two integers separated by a space.");
-            }
-            else
-            {
-                success = int.TryParse(parts[0], out x) && int.TryParse(parts[1], out y);
-                if (success == false)
-                {
-                    Removelastline();
-                    Removelastline();
-                    Console.WriteLine("Invalid input. Please enter two integers separated by a space.");
-                }
-                else
-                {
-                    if (x > map.Width || x <= 0 || y > map.Height || y <= 0)
-                    {
-                        Removelastline();
-                        Removelastline();
-                        Console.WriteLine("Invalid input. Coordinates must be within the map boundaries.");
-                        success = false;
-                    }
-                    else// if the input is valid, we can check if there is an army at the coordinates
-                    {
-                        MilitaryDetachment? detachment = detachments.FirstOrDefault(d => d.PlayerId == player.Id && d.Territory.X == x && d.Territory.Y == y);
-                        if (detachment == null)
-                        {
-                            Removelastline();
-                            Removelastline();
-                            Console.WriteLine("Invalid input. There is no army at the given coordinates.");
-                            success = false;
-                        }
-                        else
-                        {
-                            Console.WriteLine("You have chosen the army at (" + x + ", " + y + ") with force " + detachment.Force);
-                            success = true;
-                        }
-                    }
-                }
-            }
-        } while (success == false);
-    }
-    */
 
     public int DisplayArmyActions(Player player, MilitaryDetachment detachment)
     {
@@ -355,21 +288,30 @@ internal class GameDisplay
         return 0;// This line will never be reached, but it is necessary to compile the code
     }
 
-    public void DisplayMoveArmy(Player player, MilitaryDetachment detachment)
+    public char DisplayMoveArmy(Player player, Map map, MilitaryDetachment detachment)
     {
+        string? input = null;
+
         Console.WriteLine($"--- Movement from ({detachment.Territory.X}, {detachment.Territory.Y}) - Energy: {detachment.Energy} ---");
+        Console.WriteLine();
+        Console.WriteLine("Adjacent territories:");
 
-        /*
-        ---Déplacement depuis(3, 2) — Énergie: 5-- -
+        DisplayAdjacentTerritory('N', 0, 1,player, map, detachment);
+        DisplayAdjacentTerritory('S', 0, -1,player, map, detachment);
+        DisplayAdjacentTerritory('W', -1, 0,player, map, detachment);
+        DisplayAdjacentTerritory('E', 1, 0,player, map, detachment);
 
-  Territoires adjacents:
-        [N] (3, 1) — Vide Coût : 1 énergie   ✓ Accessible
-        [S](3, 3) — Vide Coût : 1 énergie   ✓ Accessible
-        [E](4, 2) — Ennemi B12        Coût: 1 énergie   ✓ Accessible(COMBAT)
-        [O](2, 2) — Vide Coût : 1 énergie   ✓ Accessible
-
-  Choix(N / S / E / O ou X pour annuler) :
-        */
+        Console.WriteLine();
+        do
+        {
+            Console.Write("Choice(N / S / W / E): ");
+            input = Console.ReadLine().ToUpper();
+            if (input == "N" || input == "S" || input == "W" || input == "E")
+                return input[0];
+            Removelastline();
+            Removelastline();
+            Console.WriteLine("Invalid input. Please enter either N / S / W / E");
+        } while (true);
     }
 
     private void Removelastline()
@@ -388,5 +330,31 @@ internal class GameDisplay
             Console.Write("+-----");
         }
         Console.WriteLine("+");
+    }
+    private void DisplayAdjacentTerritory(char c, sbyte x, sbyte y,Player player,  Map map, MilitaryDetachment detachment)
+    {
+        Console.Write($"[{c}] ({detachment.Territory.X + x}, {detachment.Territory.Y + y}) - ");
+        Territory? territory = map.Territories.FirstOrDefault(
+            t => t.X == detachment.Territory.X &&
+            t.Y - 1 == detachment.Territory.Y);
+        if (territory != null)
+        {
+            if (territory.Detachment == null)
+                Console.Write("Empty");
+            else if (territory.Detachment.PlayerId == player.Id)
+                Console.Write("Friendly");
+            else
+                Console.Write("Enemy " + territory.Detachment.Force.ToString().PadLeft(3));
+            Console.Write("Cost : 1 energy  ");
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("Accessible");
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Inaccessible");
+        }
+        Console.ForegroundColor = ConsoleColor.Gray;
     }
 }

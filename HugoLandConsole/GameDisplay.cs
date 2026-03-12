@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Security.AccessControl;
 
 namespace HugoLandConsole;
 /// <summary>
@@ -209,24 +210,64 @@ internal class GameDisplay
     public int DisplayArmyActions(Player player, MilitaryDetachment detachment)
     {
         bool success = false;
+        // Tests to see if the different actions are available for the player, based on the state of the army and the territory
+        bool opt1 = (detachment.Energy > 0);
+        bool opt2 = (detachment.Territory.Installation == null && player.Gold >= 20);
+        bool opt3 = ((detachment.Territory.Installation == null || detachment.Territory.Installation.Type != InstallationType.Fortification) && player.Gold >= 50);
+        bool opt4 = (player.Gold > 1 && detachment.Territory.Installation != null);
+        bool opt5 = (detachment.Force > 10);
 
         Console.ForegroundColor = ConsoleColor.DarkGray;
         Console.WriteLine($"--- Army in ({detachment.Territory.X}, {detachment.Territory.Y})" +
             $" - {detachment.Force} troops, {detachment.Energy} energy ---");
+        Console.ForegroundColor= ConsoleColor.Gray;
+        Console.Write("Installation : ");
+        if (detachment.Territory.Installation == null)
+            Console.WriteLine("none");
+        else
+        {
+            if (detachment.Territory.Installation.Type == InstallationType.Camp)
+                Console.Write("Camp (");
+            else
+                Console.Write("Fortification (");
+            /*
+            if (detachment.Territory.Installation.PlayerId == player.Id)
+                Console.WriteLine("yours)");
+            else
+                Console.Write("enemy)");
+            */
+        }
         Console.WriteLine("  Actions available:");
-        Console.WriteLine("    [1] Move");
-        Console.Write("    [2] Build a camp          (20 gold)");
-        if (detachment.Territory.Installation != null)
-            Console.WriteLine("   — Impossible: installation already present");
+        Console.Write("    [1] Move                      (1 energy)");
+        if (!opt1)
+            Console.WriteLine("   — Impossible: Not enough energy");
         else
             Console.WriteLine();
-        Console.WriteLine("    [3] Convert to fortification  (50 gold)");
-        if (detachment.Territory.Installation != null && detachment.Territory.Installation.Type == InstallationType.Fortification)
-            Console.WriteLine("   — Impossible: already a fortification");
+
+        Console.Write("    [2] Build a camp              (20 gold)");
+        if (!opt2)
+            Console.WriteLine("   — Impossible: Installation already present or not enough gold");
         else
             Console.WriteLine();
-        Console.WriteLine("    [4] Reinforce                   (2 gold/soldier)");
-        Console.WriteLine("    [5] Split the army");
+
+        Console.Write("    [3] Convert to fortification  (50 gold)");
+        if (!opt3)
+            Console.WriteLine("   — Impossible: Already a fortification or not enough gold");
+        else
+            Console.WriteLine();
+
+        Console.Write("    [4] Reinforce                 (2 gold/soldier)");
+        if (!opt4)
+            Console.WriteLine("   — Impossible: Not on an installation or not enough gold");
+        else
+            Console.WriteLine();
+
+        Console.Write("    [5] Split the army)");
+        if (!opt5)
+            Console.WriteLine("   — Impossible: Not enough soldiers");
+        else
+            Console.WriteLine();
+
         Console.WriteLine("    [6] Pass (do nothing)");
         Console.WriteLine();
         do
@@ -241,9 +282,94 @@ internal class GameDisplay
                 success = false;
             }
             else
-                return choice;
+            {
+                switch (choice)
+                {
+                    case 1:
+                        if (!opt1)
+                        {
+                            Removelastline();
+                            Removelastline();
+                            Console.WriteLine("Invalid choice. Not enough energy.");
+                            success = false;
+                            break;
+                        }
+                        return choice;
+
+                    case 2:
+                        if (!opt2)
+                        {
+                            Removelastline();
+                            Removelastline();
+                            Console.WriteLine("Invalid choice. Installation already present or not enough gold.");
+                            success = false;
+                            break;
+                        }
+                        return choice;
+
+                    case 3:
+                        if (!opt3)
+                        {
+                            Removelastline();
+                            Removelastline();
+                            Console.WriteLine("Invalid choice. Already a fortification or not enough gold.");
+                            success = false;
+                            break;
+                        }
+                        return choice;
+
+                    case 4:
+                        if (!opt4)
+                        {
+                            Removelastline();
+                            Removelastline();
+                            Console.WriteLine("Invalid choice. Not on an installation or not enough gold.");
+                            success = false;
+                            break;
+                        }
+                        return choice;
+
+                    case 5:
+                        if (!opt5)
+                        {
+                            Removelastline();
+                            Removelastline();
+                            Console.WriteLine("Invalid choice. Not enough soldiers.");
+                            success = false;
+                            break;
+                        }
+                        return choice;
+
+                    case 6:
+                        return choice;
+
+                    default:
+                        Removelastline();
+                        Removelastline();
+                        Console.WriteLine("Something went wrong, try again.");
+                        success = false;
+                        break;
+                }
+            }
         } while (success == false);
         return 0;// This line will never be reached, but it is necessary to compile the code
+    }
+
+    public void DisplayMoveArmy(Player player, MilitaryDetachment detachment)
+    {
+        Console.WriteLine($"--- Movement from ({detachment.Territory.X}, {detachment.Territory.Y}) - Energy: {detachment.Energy} ---");
+
+        /*
+        ---Déplacement depuis(3, 2) — Énergie: 5-- -
+
+  Territoires adjacents:
+        [N] (3, 1) — Vide Coût : 1 énergie   ✓ Accessible
+        [S](3, 3) — Vide Coût : 1 énergie   ✓ Accessible
+        [E](4, 2) — Ennemi B12        Coût: 1 énergie   ✓ Accessible(COMBAT)
+        [O](2, 2) — Vide Coût : 1 énergie   ✓ Accessible
+
+  Choix(N / S / E / O ou X pour annuler) :
+        */
     }
 
     private void Removelastline()

@@ -6,7 +6,8 @@ namespace HugoLand.Core.Services;
 public class CombatService
 {
     private readonly HugoLandContext _context;
-    private Random _rnd;
+    private static Random _rnd = new Random();
+
 
     public CombatService(HugoLandContext context)
     {

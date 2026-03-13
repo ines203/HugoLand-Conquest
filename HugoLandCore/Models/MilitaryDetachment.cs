@@ -9,14 +9,14 @@ public class MilitaryDetachment
     public int Energy { get; set; }
     public bool Actionable { get; set; }
 
-    public bool PlayerId { get; set; }
+    public int PlayerId { get; set; }
     public Player? Player { get; set; }
 
     public int TerritoryId { get; set; }
     public Territory? Territory { get; set; }
 
     //pour ef core
-    protected MilitaryDetachment() { }
+    public MilitaryDetachment() { }
 
 
     public static MilitaryDetachment Create(int territory_id, int force, int energy, bool actionable)

@@ -1,5 +1,5 @@
-﻿using HugoLandCore.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using HugoLandCore.Models;
 
 namespace HugoLandCore.Data;
 

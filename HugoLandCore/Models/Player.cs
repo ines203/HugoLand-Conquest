@@ -1,6 +1,4 @@
-﻿using HugoLandCore.Models;
-
-namespace HugoLandCore.Models;
+﻿namespace HugoLandCore.Models;
 
 public class Player
 {

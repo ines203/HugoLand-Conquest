@@ -314,6 +314,70 @@ internal class GameDisplay
         } while (true);
     }
 
+    public void DisplayArmyCombat(char attPlayer, float attFactor, float defFactor, MilitaryDetachment attacker, MilitaryDetachment defender)
+    {
+        char defPlayer = (attPlayer == 'A') ? 'B' : 'A';
+        int attNewForce = 0;
+        int defNewForce = 0;
+        int pillagedSlice = 0;
+
+        Console.WriteLine($"════════════════ COMBAT en ({defender.Territory.X},{defender.Territory.Y}) ════════════════");
+        Console.Write($"Attacker ({attPlayer}) : ");
+        Console.WriteLine((attacker.Force + " troops").PadLeft(14) + $"Defender ({defPlayer}) : " + defender.Force + "troops");
+
+        Console.Write("Terrain : Plain (x1.0)      Installation : ");
+        if (defender.Territory.Installation == null)
+            Console.WriteLine("None");
+        else if (defender.Territory.Installation.Type == InstallationType.Camp)
+            Console.WriteLine("Camp (x1.1)");
+        else if (defender.Territory.Installation.Type == InstallationType.Fortification)
+            Console.WriteLine("Fortification (x1.2)");
+
+        Console.WriteLine();
+        Console.WriteLine($"Attacker factor : x{attFactor:F2}     Effective strength : {(attacker.Force * attFactor):F1}");
+        Console.WriteLine($"Defender factor : x{defFactor:F2}     Effective strength : {(attacker.Force * defFactor):F1}");
+
+        bool attVictory = (attacker.Force * attFactor) > (defender.Force * defFactor);
+        Console.Write("VICTORY of the ");
+
+        if (attVictory)
+        {// Attacker wins
+            attNewForce = attacker.Force * (int)0.2f;
+            defNewForce = defender.Force * (int)0.6f;
+            Console.WriteLine($"attacker ({attPlayer})");
+            Console.WriteLine();
+            Console.WriteLine($"Loses attacker (winner) : {attacker.Force} x 20% = {attNewForce}   -> {attacker.Force - attNewForce} troops left");
+            Console.WriteLine($"Loses defender (loser) : {defender.Force} x 60% = {defNewForce}   -> {defender.Force - defNewForce} troops left");
+
+            pillagedSlice = (defender.Force / 10);
+        }
+        else
+        {// Defender wins
+            defNewForce = defender.Force * (int)0.2f;
+            attNewForce = attacker.Force * (int)0.6f;
+            Console.WriteLine($"defender ({attPlayer})");
+            Console.WriteLine();
+            Console.WriteLine($"Loses attacker (loser) : {attacker.Force} x 60% = {attNewForce}   -> {attacker.Force - attNewForce} troops left");
+            Console.WriteLine($"Loses defender (winner) : {defender.Force} x 20% = {defNewForce}   -> {defender.Force - defNewForce} troops left");
+
+            pillagedSlice = (defender.Force / 10);
+        }
+        Console.WriteLine();
+
+        if (attNewForce < 10)
+            Console.WriteLine($"{attPlayer} has {attacker.Force - attNewForce} troops (<10) -> DESTRUCTION");
+        if (defNewForce < 10)
+            Console.WriteLine($"{defPlayer} has {defender.Force - defNewForce} troops (<10) -> DESTRUCTION");
+
+        if (attVictory)
+            Console.WriteLine($"Pillage : {pillagedSlice * 5} gold ({defender.Force} / 10 = {pillagedSlice} tranches)");
+        else
+            Console.WriteLine($"Pillage : {pillagedSlice * 5} gold ({attacker.Force} / 10 = {pillagedSlice} tranches)");
+
+        Console.WriteLine("Energy after battle : 0 (exhaustion)");
+        Console.WriteLine("═════════════════════════════════════════════════");
+    }
+
     private void Removelastline()
     {
         Console.SetCursorPosition(0, Console.CursorTop - 1);

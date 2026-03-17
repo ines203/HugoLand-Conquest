@@ -29,7 +29,7 @@ internal class GameDisplay
         Console.Clear();
 
         int nbFortif = installations
-            .Count(i => i.Territory.MapId == map.Id /*&& i.PlayerId == player.Id*/);
+            .Count(i => i.Territory.MapId == map.Id && i.PlayerId == player.Id);
 
         int nbTroop = detachments
             .Where(d => d.PlayerId == player.Id)
@@ -109,8 +109,8 @@ internal class GameDisplay
 
     public void DisplayPlayerState(Player player, Game game)
     {
-        //int earnings = player.Detachments.Sum(d => d.Force) * 5 + player.Installations.Count(i => i.Type == InstallationType.Fortification) * 10;
-        int earnings = 7;// testing
+        int earnings = player.Detachments.Sum(d => d.Force) * 5 + player.Installations.Count(i => i.Type == InstallationType.Fortification) * 10;
+        //int earnings = 7;// testing
         int maintenance = 5;// testing
         int nbArmies = 7;// testing
         int nbForces = 35;// testing
@@ -163,12 +163,11 @@ internal class GameDisplay
                 Console.Write("Camp (");
             else
                 Console.Write("Fortification (");
-            /*
+
             if (detachment.Territory.Installation.PlayerId == player.Id)
                 Console.WriteLine("yours)");
             else
                 Console.Write("enemy)");
-            */
         }
         Console.WriteLine("  Actions available:");
         Console.Write("    [1] Move                      (1 energy)");
@@ -364,10 +363,12 @@ internal class GameDisplay
         }
         Console.WriteLine();
 
+        Console.ForegroundColor = ConsoleColor.Red;
         if (attNewForce < 10)
             Console.WriteLine($"{attPlayer} has {attacker.Force - attNewForce} troops (<10) -> DESTRUCTION");
         if (defNewForce < 10)
             Console.WriteLine($"{defPlayer} has {defender.Force - defNewForce} troops (<10) -> DESTRUCTION");
+        Console.ForegroundColor= ConsoleColor.Gray;
 
         if (attVictory)
             Console.WriteLine($"Pillage : {pillagedSlice * 5} gold ({defender.Force} / 10 = {pillagedSlice} tranches)");
@@ -376,6 +377,42 @@ internal class GameDisplay
 
         Console.WriteLine("Energy after battle : 0 (exhaustion)");
         Console.WriteLine("═════════════════════════════════════════════════");
+    }
+
+    public void DisplayBeginningTurn (Game game, Player player)
+    {
+        int nbFortif = player.Installations
+            .Count(i => i.Type == InstallationType.Fortification);
+        int maintenance = 0;
+
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.Write($" --- Start of turn {game.TurnNumber} — Player ");
+        if (player.Id == 0)// If player A
+            Console.Write("A");
+        else// If player B
+            Console.Write("B");
+        Console.WriteLine(" ---");
+        Console.WriteLine();
+
+        Console.WriteLine("Energy gained (+2)");
+        foreach(MilitaryDetachment detachment in player.Detachments)
+        {
+            // Calculation maintenance for later
+            maintenance += detachment.Force / 10;
+
+            if (detachment.Energy < 4)
+                Console.WriteLine($"Army ({detachment.Territory.X},{detachment.Territory.Y}) : {detachment.Energy} -> {detachment.Energy + 2}");
+            else if (detachment.Energy < 5)
+                Console.WriteLine($"Army ({detachment.Territory.X},{detachment.Territory.Y}) : {detachment.Energy} -> 5");
+        }
+        Console.WriteLine();
+
+        Console.WriteLine($"Earnings : +{nbFortif * 5} gold  ({nbFortif} owned fortification)");
+        Console.WriteLine($"Maintenance : -{maintenance} gold for armies");
+        Console.WriteLine($"Balance : {player.Gold} -> {(nbFortif * 5) - maintenance} gold");
+        Console.WriteLine();
+        Console.WriteLine($" --- Your armies ({player.Detachments.Count}) are ready ---");
+        Console.WriteLine();
     }
 
     private void Removelastline()

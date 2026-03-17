@@ -415,6 +415,60 @@ internal class GameDisplay
         Console.WriteLine();
     }
 
+    public char DisplayMenu()
+    {
+        Console.WriteLine("══════════════════════════════════════");
+        Console.WriteLine("      HugoLand: Conquest — Phase 1");
+        Console.WriteLine("══════════════════════════════════════");
+        Console.WriteLine();
+        Console.WriteLine("  [1] New game");
+        Console.WriteLine("  [2] Load save");
+        Console.WriteLine("  [3] Quit");
+        Console.WriteLine();
+
+        do
+        {
+            Console.Write("  Choice :");
+            string input = Console.ReadLine();
+            if (input == "1" || input == "2" || input == "3")
+                return input[0];
+            Removelastline();
+            Removelastline();
+            Console.WriteLine("Please enter one of the available options");
+        } while (true);
+        return '0';
+    }
+
+    public int DisplaySavesChoice(List<Game> saves)
+    {
+        int i = 0;
+        int iInput = 0;
+        bool success = false;
+        Console.WriteLine("--- Saved games ---");
+        foreach(Game save in saves)
+        {
+            ++i;
+            Console.WriteLine($"  [{i}] Partie {save.Name}  - Turn {save.TurnNumber}, {save.Status}");
+        }
+        Console.WriteLine();
+        //  [1] Partie 2025-03-15 14h30  — Tour 12, En cours
+        do
+        {
+            Console.Write("  Choice :");
+            string input = Console.ReadLine();
+            success = int.TryParse(input, out iInput);
+            if (success)
+            {
+                if (iInput > 0 && iInput <= i)
+                    return iInput;
+            }
+            Removelastline();
+            Removelastline();
+            Console.WriteLine("Please enter one of the available options");
+        } while (true);
+        return 0;
+    }
+
     private void Removelastline()
     {
         Console.SetCursorPosition(0, Console.CursorTop - 1);

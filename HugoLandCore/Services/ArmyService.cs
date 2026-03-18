@@ -42,19 +42,19 @@ public class ArmyService
         switch (direction)
         {
             case 0:
-                new_territory_id = army.TerritoryId; // + width
+                new_territory_id = army.TerritoryId + army.Player.Game.Map.Width;
                 break;
             case 1:
-                new_territory_id = army.TerritoryId; // + 1
+                new_territory_id = army.TerritoryId + 1;
                 break;
             case 2:
-                new_territory_id = army.TerritoryId; // - width
+                new_territory_id = army.TerritoryId - army.Player.Game.Map.Width;
                 break;
             case 3:
-                new_territory_id = army.TerritoryId; // - 1
+                new_territory_id = army.TerritoryId - 1;
                 break;
             default:
-                return;
+                new_territory_id = army.TerritoryId;
                 break;
         }
 
@@ -62,6 +62,15 @@ public class ArmyService
         {
             if (player.Id != army.PlayerId)
                 enemy = player;
+        }
+
+        foreach (Installation building in enemy.Installations)
+        {
+            if (building.TerritoryId == new_territory_id && !building.IsOccupied)
+            {
+                building.PlayerId = army.PlayerId;
+                building.IsOccupied = true;
+            }
         }
 
         foreach (MilitaryDetachment allies in army.Player.Detachments)

@@ -6,7 +6,8 @@ namespace HugoLand.Core.Services;
 public class CombatService
 {
     private readonly HugoLandContext _context;
-    private static Random _rnd = new Random();
+    private ArmyService armyService;
+    private Random _rnd = new Random();
 
 
     public CombatService(HugoLandContext context)
@@ -21,30 +22,100 @@ public class CombatService
     /// </summary>
     /// <param name="army_self">Attacker Instance</param>
     /// <param name="army_enemy">Defender instance</param>
-    public static void ResolveCombat(MilitaryDetachment army_self, MilitaryDetachment army_enemy)
+    public void ResolveCombat(MilitaryDetachment army_self, MilitaryDetachment army_enemy, int direction)
     {
-        float eff_force_self = army_self.Force * (_rnd.Next(8, 13) / 10);
-        float eff_force_enemy = army_enemy.Force * (_rnd.Next(9, 14) / 10) 
+        float eff_force_self = army_self.Force * (_rnd.Next(8, 13) / 10f);
+        float eff_force_enemy = army_enemy.Force * (_rnd.Next(9, 14) / 10f)
             * army_enemy.Territory.TerrainBonus * army_enemy.Territory.Installation.InstallationBonus;
+        bool attackerWins = eff_force_self > eff_force_enemy;
 
-        if (eff_force_self > eff_force_enemy)
+        // Apply casualties
+        if (attackerWins)
         {
-            army_self.Force *= (int)0.8f;
-            army_enemy.Force *= (int)0.4f;
+            army_self.Force = (int)(army_self.Force * 0.8f);
+            army_enemy.Force = (int)(army_enemy.Force * 0.4f);
         }
-        else // inclding ties
+        else
         {
-            army_self.Force *= (int)0.4f;
-            army_enemy.Force *= (int)0.8f;
+            army_self.Force = (int)(army_self.Force * 0.4f);
+            army_enemy.Force = (int)(army_enemy.Force * 0.8f);
         }
 
         army_self.Energy = 0;
         army_enemy.Energy = 0;
 
 
-        if (army_self.Force > 10)
+        if (attackerWins)
         {
+            TryRetreat(army_self, army_enemy, attackerWins, direction);
+        }
+        else
+        {
+            TryRetreat(army_enemy, army_self, attackerWins, direction);
+        }
 
+        _context.SaveChanges();
+    }
+
+    private void TryRetreat(MilitaryDetachment winner, MilitaryDetachment loser, bool attackerWins, int direction)
+    {
+        int old_territory_id;
+
+        if (loser.Force < 10)
+        {
+            _context.Detachments.Remove(loser); // small force cannot survive
+            return;
+        }
+
+        List<int> directions = new List<int> { 0, 1, 2, 3 };
+        directions = directions.OrderBy(x => _rnd.Next()).ToList();
+
+        bool retreated = false;
+
+        if (attackerWins)
+        {
+            foreach (int dir in directions)
+            {
+                try
+                {
+                    armyService.TryMove(loser.Id, dir);
+                    retreated = true;
+                    break; // success
+                }
+                catch 
+                {
+                    continue;
+                }
+            }
+        }
+        else //defenders won
+        {
+            switch (direction)
+            {
+                case 0:
+                    old_territory_id = loser.TerritoryId + loser.Player.Game.Map.Width;
+                    break;
+                case 1:
+                    old_territory_id = loser.TerritoryId - 1;
+                    break;
+                case 2:
+                    old_territory_id = loser.TerritoryId - loser.Player.Game.Map.Width;
+                    break;
+                case 3:
+                    old_territory_id = loser.TerritoryId + 1;
+                    break;
+                default:
+                    old_territory_id = loser.TerritoryId;
+                    break;
+            }
+            armyService.TryMove(loser.Id, direction);
+            retreated = true;
+        }
+
+        if (!retreated)
+        {
+            _context.Detachments.Remove(loser); // destruction
         }
     }
 }
+

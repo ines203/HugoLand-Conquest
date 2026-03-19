@@ -1,13 +1,12 @@
 ﻿using HugoLandCore.Data;
 using HugoLandCore.Models;
-using System;
-using System.Numerics;
 
 namespace HugoLand.Core.Services;
 
 public class ArmyService
 {
     private readonly HugoLandContext _context;
+    private CombatService combatService;
 
     public ArmyService(HugoLandContext context)
     {
@@ -39,16 +38,22 @@ public class ArmyService
         if (army == null || army.Force < 11)
             return;
 
+        foreach (Player player in army.Player.Game.Players)
+        {
+            if (player.Id != army.PlayerId)
+                enemy = player;
+        }
+
         switch (direction)
         {
             case 0:
-                new_territory_id = army.TerritoryId + army.Player.Game.Map.Width;
+                new_territory_id = army.TerritoryId - army.Player.Game.Map.Width;
                 break;
             case 1:
                 new_territory_id = army.TerritoryId + 1;
                 break;
             case 2:
-                new_territory_id = army.TerritoryId - army.Player.Game.Map.Width;
+                new_territory_id = army.TerritoryId + army.Player.Game.Map.Width;
                 break;
             case 3:
                 new_territory_id = army.TerritoryId - 1;
@@ -58,11 +63,6 @@ public class ArmyService
                 break;
         }
 
-        foreach (Player player in army.Player.Game.Players)
-        {
-            if (player.Id != army.PlayerId)
-                enemy = player;
-        }
 
         foreach (Installation building in enemy.Installations)
         {
@@ -77,7 +77,7 @@ public class ArmyService
         {
             if (allies.TerritoryId == new_territory_id)
             {
-                TryMerge(army, direction);
+                TryMerge(army);
             }
         }
 
@@ -85,7 +85,7 @@ public class ArmyService
         {
             if (enemy_detachment.TerritoryId == new_territory_id)
             {
-                CombatService.ResolveCombat(army, enemy_detachment);
+                combatService.ResolveCombat(army, enemy_detachment, direction);
             }
         }
 
@@ -93,6 +93,7 @@ public class ArmyService
 
         army.Energy -= new_territory.TerrainEnergyCost;
         army.Actionable = false;
+        _context.SaveChanges();
     }
     public void TrySplit(int armyId, int direction, int split_qty) //direction en int temporairement, ca va surement etre une enum?
     {
@@ -108,24 +109,25 @@ public class ArmyService
         switch (direction)
         {
             case 0:
-                new_territory_id = army.TerritoryId; // + width
+                new_territory_id = army.TerritoryId - army.Player.Game.Map.Width;
                 break;
             case 1:
-                new_territory_id = army.TerritoryId; // + 1
+                new_territory_id = army.TerritoryId + 1;
                 break;
             case 2:
-                new_territory_id = army.TerritoryId; // - width
+                new_territory_id = army.TerritoryId + army.Player.Game.Map.Width;
                 break;
             case 3:
-                new_territory_id = army.TerritoryId; // - 1
+                new_territory_id = army.TerritoryId - 1;
                 break;
             default:
-                return;
-                break;
+                new_territory_id = army.TerritoryId;
+                break; ;
         }
 
         new_detachment = MilitaryDetachment.Create(new_territory_id, split_qty, army.Energy, false);
         new_detachment.Energy -= new_detachment.Territory.TerrainEnergyCost;
+        _context.SaveChanges();
 
         foreach (Player player in army.Player.Game.Players)
         {
@@ -137,7 +139,7 @@ public class ArmyService
         {
             if (enemy_detachment.TerritoryId == new_territory_id)
             {
-                CombatService.ResolveCombat(army, enemy_detachment);
+                combatService.ResolveCombat(army, enemy_detachment, direction);
             }
         }
 
@@ -167,9 +169,10 @@ public class ArmyService
             army.Actionable = false;
         }
 
+        _context.SaveChanges();
     }
 
-    public void TryMerge(MilitaryDetachment army, int direction)
+    public void TryMerge(MilitaryDetachment army)
     {
 
         foreach (MilitaryDetachment target in army.Player.Detachments)
@@ -179,7 +182,10 @@ public class ArmyService
             {
                 army.Force += target.Force;
                 army.Energy = (target.Energy <= army.Energy) ? target.Energy : army.Energy;
+
                 //delete army object
+                _context.Detachments.Remove(target); 
+                _context.SaveChanges();
             }
         }
     }

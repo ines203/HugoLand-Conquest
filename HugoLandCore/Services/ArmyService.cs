@@ -95,6 +95,7 @@ public class ArmyService
 
         army.Energy -= new_territory.TerrainEnergyCost;
         army.Actionable = false;
+        army.TerritoryId = new_territory_id;
         _context.SaveChanges();
     }
     public void TrySplit(int armyId, int direction, int split_qty) //direction en int temporairement, ca va surement etre une enum?

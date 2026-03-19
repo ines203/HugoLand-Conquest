@@ -8,10 +8,12 @@ public class ArmyService
     private readonly HugoLandContext _context;
     private CombatService combatService;
 
-    public ArmyService(HugoLandContext context)
+    public ArmyService(HugoLandContext context, CombatService combat)
     {
         _context = context;
+        combatService = combat;
     }
+
 
     //Section donné dans l'énoncé
 

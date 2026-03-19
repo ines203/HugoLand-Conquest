@@ -50,4 +50,19 @@ public class InstallationService
         else
             return; //message d'erreur "pas de camp ici"
     }
+
+    public void CheckDestructionCamp(Installation building)
+    {
+        bool to_delete = true;
+
+        if (building.Type == InstallationType.Camp)
+        {
+            if (building.IsOccupied)
+                to_delete = false;
+        }
+        
+        if (to_delete)
+            _context.Installations.Remove(building);
+        _context.SaveChanges();
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using HugoLandCore.Data;
 using HugoLandCore.Models;
+using HugoLandCore.Services;
 
 namespace HugoLand.Core.Services;
 
@@ -7,6 +8,7 @@ public class CombatService
 {
     private readonly HugoLandContext _context;
     private ArmyService armyService;
+    private InstallationService installationService;
     private Random _rnd = new Random();
 
 
@@ -79,10 +81,15 @@ public class CombatService
                 try
                 {
                     armyService.TryMove(loser.Id, dir);
+                    foreach (Installation bulding in loser.Player.Installations)
+                    {
+                        if (bulding.TerritoryId == loser.TerritoryId && bulding.Type == InstallationType.Camp)
+                            installationService.CheckDestructionCamp(bulding);
+                    }
                     retreated = true;
                     break; // success
                 }
-                catch 
+                catch
                 {
                     continue;
                 }

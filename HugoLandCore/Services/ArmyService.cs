@@ -92,6 +92,8 @@ public class ArmyService
         }
 
         var new_territory = _context.Territories.Find(new_territory_id);
+        if (new_territory == null)
+            return;
 
         army.Energy -= new_territory.TerrainEnergyCost;
         army.Actionable = false;

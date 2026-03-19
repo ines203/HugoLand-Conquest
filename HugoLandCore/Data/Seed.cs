@@ -37,15 +37,39 @@ public static class Seed
         model.Entity<Territory>().HasData(territories);
 
         // 3) Game
-        model.Entity<Game>().HasData(new Game
-        {
-            Id = 1,
-            Name = "Partie initiale",
-            Status = GameStatus.InProgress,
-            CurrentPlayerIndex = 0,
-            TurnNumber = 1,
-            MapId = 1
-        });
+        model.Entity<Game>().HasData(
+            new Game
+            {
+                Id = 1,
+                Name = "Partie initiale",
+                Status = GameStatus.InProgress,
+                CurrentPlayerIndex = 0,
+                TurnNumber = 1,
+                MapId = 1
+            }
+            /*
+            new Game
+            {
+                Id = 2,
+                Name = "76ibfvjb 2iub vrhkb f2viyov3 f u               kys               7264922949205--68202748%%%%%%%%²¬£¤¦²££££¢¤;wp^;'idiot'-----------  ",
+                Status = GameStatus.InProgress,
+                CurrentPlayerIndex = 1,
+                TurnNumber = 57,
+                MapId = 1
+            }
+            */
+            /*
+            new Game
+            {
+                Id = int.MaxValue,
+                Name = "End_My_Sufferings",
+                Status = GameStatus.InProgress,
+                CurrentPlayerIndex = 0,
+                TurnNumber = int.MaxValue,
+                MapId = 1
+            }
+            */
+        );
 
         // 4) Players
         model.Entity<Player>().HasData(

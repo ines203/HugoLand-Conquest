@@ -64,7 +64,7 @@ internal class GameDisplay
             Console.Write(" ");
             for (int j = 0; j < map.Height; j++)
             {
-                string text = "     ";
+                string text = "";
                 Console.Write("|");
 
                 Territory? territory = map.Territories.FirstOrDefault(t => t.X == j && t.Y == i);

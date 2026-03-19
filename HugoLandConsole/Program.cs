@@ -1,7 +1,8 @@
-﻿using HugoLandCore.Data;
-using Microsoft.EntityFrameworkCore;
-using HugoLandCore.Services;
+﻿using HugoLand.Core.Services;
+using HugoLandCore.Data;
 using HugoLandCore.Models;
+using HugoLandCore.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace HugoLandConsole;
 
@@ -17,14 +18,31 @@ internal class Program
         .UseInMemoryDatabase("HugoLandDB")
         .Options;
 
-        var db = new HugoLandContext(options);
+        var context = new HugoLandContext(options);
 
-        db.Database.EnsureCreated();
+        // Crée la BD et applique le seed
+        context.Database.EnsureCreated();
+
+        // Services
+        var armyService = new ArmyService(context);
+        var installationService = new InstallationService(context);
+        var combatService = new CombatService(context);
+        var display = new GameDisplay(context);
+
+        // Menu manager
+        var menu = new MenuManager(
+            context,
+            display,
+            armyService,
+            installationService,
+            combatService
+        );
+
+        // Lancer le jeu
+        menu.Start();
 
         // Test pour voir si la base de données est bien créée et accessible, si 16 = fonctionne, si 0 = ne fonctionne pas
-        Console.WriteLine($"Nombre de territoires : {db.Territories.Count()}");
-        Console.ReadLine();
-
-        //Section donné dans l'énoncé
+        //Console.WriteLine($"Nombre de territoires : {db.Territories.Count()}");
+        //Console.ReadLine();
     }
 }

@@ -69,14 +69,14 @@ internal class GameDisplay
 
                 Territory? territory = map.Territories.FirstOrDefault(t => t.X == j && t.Y == i);
 
-                if (territory.Detachment.PlayerId == player.Id)
+                if (territory.Detachment != null && territory.Detachment.PlayerId == player.Id)
                     Console.ForegroundColor = ConsoleColor.Green;
                 else
                     Console.ForegroundColor = ConsoleColor.Red;
 
-                if (territory.Installation.Type == InstallationType.Camp)
+                if (territory.Installation != null && territory.Installation.Type == InstallationType.Camp)
                     text += "(";
-                else if (territory.Installation.Type == InstallationType.Fortification)
+                else if (territory.Installation != null && territory.Installation.Type == InstallationType.Fortification)
                     text += "[";
                 else
                     text += " ";
@@ -89,9 +89,9 @@ internal class GameDisplay
                         text += "999";
                 }
 
-                if (territory.Installation.Type == InstallationType.Camp)
+                if (territory.Installation != null && territory.Installation.Type == InstallationType.Camp)
                     text += ")";
-                else if (territory.Installation.Type == InstallationType.Fortification)
+                else if (territory.Installation != null && territory.Installation.Type == InstallationType.Fortification)
                     text += "]";
                 else
                     text += " ";

@@ -183,4 +183,27 @@ public class ArmyService
             }
         }
     }
+
+    public void ReinforceArmy(Player player, MilitaryDetachment army, int amount)
+    {
+        int cost = amount * 2;
+
+        // Vérifier installation
+        if (army.Territory.Installation == null)
+            return;
+
+        // Vérifier or
+        if (player.Gold < cost)
+            return;
+
+        // Appliquer renforcement
+        army.Force += amount;
+        player.Gold -= cost;
+
+        // L’armée a agi
+        army.Actionable = false;
+
+        _context.SaveChanges();
+    }
+
 }

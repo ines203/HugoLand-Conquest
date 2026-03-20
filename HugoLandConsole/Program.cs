@@ -27,9 +27,9 @@ internal class Program
         context.Database.EnsureCreated();
 
         // Services
-        var combatService = new CombatService(context);
-        var armyService = new ArmyService(context, combatService);
         var installationService = new InstallationService(context);
+        var combatService = new CombatService(context, installationService);
+        var armyService = new ArmyService(context, combatService);
         var display = new GameDisplay(context);
 
         // Menu manager

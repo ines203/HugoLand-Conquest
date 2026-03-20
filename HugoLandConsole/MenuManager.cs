@@ -245,17 +245,14 @@ internal class MenuManager
     //  Renforcement
     private void HandleReinforce(Player player, MilitaryDetachment army)
     {
-        Console.Write("How many soldiers to add? ");
-        if (int.TryParse(Console.ReadLine(), out int amount))
-        {
-            _armyService.ReinforceArmy(player, army, amount);
-        }
+        int newTroops = _display.DisplayReinforcement(player);
+        _armyService.ReinforceArmy(player, army, newTroops);
     }
 
     //  Split
     private void HandleSplit(Game game, Player player, MilitaryDetachment army)
     {
-        Console.Write("How many soldiers to send to the new army? ");
+        Console.Write("How many troops to send to the new army? ");
         if (int.TryParse(Console.ReadLine(), out int amount))
         {
             Console.Write("Direction (N/S/E/W): ");

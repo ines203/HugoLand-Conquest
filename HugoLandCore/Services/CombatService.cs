@@ -12,9 +12,10 @@ public class CombatService
     private Random _rnd = new Random();
 
 
-    public CombatService(HugoLandContext context)
+    public CombatService(HugoLandContext context, InstallationService insta)
     {
         _context = context;
+        installationService = insta;
     }
 
     // Méthodes

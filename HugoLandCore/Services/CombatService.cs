@@ -28,7 +28,9 @@ public class CombatService
     {
         float eff_force_self = army_self.Force * (_rnd.Next(8, 13) / 10f);
         float eff_force_enemy = army_enemy.Force * (_rnd.Next(9, 14) / 10f)
-            * army_enemy.Territory.TerrainBonus * army_enemy.Territory.Installation.InstallationBonus;
+            * army_enemy.Territory.TerrainBonus;
+        if (army_enemy.Territory.Installation != null)
+            eff_force_enemy *= army_enemy.Territory.Installation.InstallationBonus;
         bool attackerWins = eff_force_self > eff_force_enemy;
 
         // Apply casualties

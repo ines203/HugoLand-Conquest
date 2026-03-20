@@ -1,4 +1,5 @@
-﻿using HugoLandCore.Data;
+﻿using HugoLand.Core.Services;
+using HugoLandCore.Data;
 using HugoLandCore.Models;
 using Microsoft.Extensions.Options;
 using System;
@@ -12,7 +13,7 @@ using System.Security.AccessControl;
 namespace HugoLandConsole;
 /// <summary>
 /// Author : Justin Ducharme
-/// Description : Classe responsable de l'affichage de la grille et de l'état du jeu dans la console.
+/// Description : Class responsible for the display in the console.
 /// Date : 2026-03-10
 /// </summary>
 internal class GameDisplay 
@@ -35,6 +36,7 @@ internal class GameDisplay
             .Where(d => d.PlayerId == player.Id)
             .Sum(d => d.Force);
 
+        /*
         Console.ForegroundColor = ConsoleColor.DarkGray;
         Console.Write("Turn " + game.TurnNumber + " — Player ");
         if (player.Id == 1)// If player A
@@ -43,6 +45,10 @@ internal class GameDisplay
             Console.Write("B");
 
         Console.WriteLine($"                                    Or: {player.Gold} | Fortif. : {nbFortif} | Troop : {nbTroop}");
+        */
+
+        DisplayPlayerState(player, game);
+
         Console.WriteLine();
         Console.ForegroundColor = ConsoleColor.Gray;
 
@@ -111,15 +117,22 @@ internal class GameDisplay
 
     public void DisplayPlayerState(Player player, Game game)
     {
-        int earnings = player.Detachments.Sum(d => d.Force) * 5 + player.Installations.Count(i => i.Type == InstallationType.Fortification) * 10;
-        //int earnings = 7;// testing
-        int maintenance = 5;// testing
-        int nbArmies = 7;// testing
-        int nbForces = 35;// testing
-        int nbForts = 2;// testing
+        int maintenance = 0;
+        int nbArmies = 0;
+        int nbForces = 0;
+        foreach (MilitaryDetachment detachment in player.Detachments)
+        {
+            maintenance += detachment.Force / 10;
+            nbForces += detachment.Force;
+            ++nbArmies;
+        }
+
+        int nbFortif = player.Installations
+            .Count(i => i.Type == InstallationType.Fortification);
+
+        int earnings = (nbFortif * 5) - maintenance;
 
         Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.WriteLine("═══════════════════════════════════════════════════");
 
         Console.Write("Joueur ");
         if (player.Id == 1)// If player A
@@ -128,17 +141,15 @@ internal class GameDisplay
             Console.Write("B");
         Console.WriteLine(" - Tour " + game.TurnNumber);
 
-        Console.WriteLine("Gold: " + player.Gold.ToString().PadLeft(10) +
-            "Earnings: +" + earnings.ToString().PadLeft(3) +
-            "/ turn     Maintenance: -" + maintenance.ToString().PadLeft(4) + "/ turn");
+        Console.WriteLine("Gold: " + player.Gold.ToString().PadRight(10) +
+            "Earnings: +" + earnings.ToString().PadRight(3) +
+            "/ turn     Maintenance: -" + maintenance.ToString().PadRight(4) + "/ turn");
 
-        Console.WriteLine("Armies: " + nbArmies.ToString().PadLeft(8) + 
-            "Total force: " + nbForces.ToString().PadLeft(3) +
-            "     Fortifications: " + nbForts);
+        Console.WriteLine("Armies: " + nbArmies.ToString().PadRight(8) + 
+            "Total force: " + nbForces.ToString().PadRight(3) +
+            "     Fortifications: " + nbFortif);
 
-        Console.WriteLine("Debt: " + player.DebtTurns.ToString().PadLeft(2) + " turn(s)");
-
-        Console.WriteLine("═══════════════════════════════════════════════════");
+        Console.WriteLine("Debt: " + player.DebtTurns.ToString().PadRight(2) + " turn(s)");
     }
 
 
@@ -526,6 +537,28 @@ internal class GameDisplay
         return 0;
     }
 
+    public int DisplayReinforcement(Player player)
+    {
+        int newTroops = 0;
+        bool success = false;
+        Console.WriteLine();
+        do
+        {
+            Console.Write("How many troops to add? : ");
+            success = int.TryParse(Console.ReadLine(), out newTroops);
+            if (success)
+            {
+                if (player.Gold >= newTroops * 2)
+                {
+                    return newTroops;
+                }
+            }
+            Removelastline();
+            Removelastline();
+            Console.WriteLine("Not a number of insufficient gold");
+        } while (true);
+    }
+
     private void Removelastline()
     {
         int currentLineCursor = Console.CursorTop - 1;
@@ -558,7 +591,7 @@ internal class GameDisplay
                 Console.Write("Friendly");
             else
                 Console.Write("Enemy " + territory.Detachment.Force.ToString().PadLeft(3));
-            Console.Write("Cost : 1 energy  ");
+            Console.Write("  Cost : 1 energy  ");
 
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Accessible");

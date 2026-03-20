@@ -124,8 +124,12 @@ internal class MenuManager
             // 2. Énergie + revenus + entretien
             ApplyStartOfTurn(game, current);
 
+            var actionableArmies = current.Detachments
+                .Where(d => d.Actionable)
+                .ToList();   // copie sécurisée
+
             // 3. Actions des armées
-            foreach (var army in current.Detachments.Where(d => d.Actionable))
+            foreach (var army in actionableArmies)
             {
                 _display.DisplayMap(
                     game,

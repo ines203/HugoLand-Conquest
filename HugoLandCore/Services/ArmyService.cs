@@ -141,9 +141,24 @@ public class ArmyService
         if (new_territory == null)
             return;
 
+        // créer le nouveau détachement
         new_detachment = MilitaryDetachment.Create(new_territory_id, split_qty, army.Energy, false);
-        new_detachment.Energy -= new_detachment.Territory.TerrainEnergyCost;
+
+        // assigner le joueur
+        new_detachment.PlayerId = army.PlayerId;
+        new_detachment.Player = army.Player;
+
+        // assigner le territoire
+        new_territory.Detachment = new_detachment;
+
+        // ajouter dans la BD
+        _context.Detachments.Add(new_detachment);
+
+        // énergie
+        new_detachment.Energy -= new_territory.TerrainEnergyCost;
+
         _context.SaveChanges();
+
 
         foreach (Player player in army.Player.Game.Players)
         {

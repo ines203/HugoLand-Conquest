@@ -79,7 +79,7 @@ public class ArmyService
         new_territory.Detachment = army;
 
         // Maintenant que l’armée est sur la case puis merge
-        foreach (MilitaryDetachment allies in army.Player.Detachments)
+        foreach (MilitaryDetachment allies in army.Player.Detachments.ToList())
         {
             if (allies.TerritoryId == new_territory_id && allies.Id != army.Id)
             {
@@ -89,7 +89,7 @@ public class ArmyService
         }
 
         // Combat
-        foreach (MilitaryDetachment enemy_detachment in enemy.Detachments)
+        foreach (MilitaryDetachment enemy_detachment in enemy.Detachments.ToList())
         {
             if (enemy_detachment.TerritoryId == new_territory_id)
             {

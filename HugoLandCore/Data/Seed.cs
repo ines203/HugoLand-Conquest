@@ -51,7 +51,7 @@ public static class Seed
             new Game
             {
                 Id = 2,
-                Name = "76ibfvjb 2iub vrhkb f2viyov3 f u               kys               7264922949205--68202748%%%%%%%%²¬£¤¦²££££¢¤;wp^;'idiot'-----------  ",
+                Name = "Game B",
                 Status = GameStatus.InProgress,
                 CurrentPlayerIndex = 1,
                 TurnNumber = 57,
@@ -62,7 +62,7 @@ public static class Seed
             new Game
             {
                 Id = int.MaxValue,
-                Name = "End_My_Sufferings",
+                Name = "Game C",
                 Status = GameStatus.InProgress,
                 CurrentPlayerIndex = 0,
                 TurnNumber = int.MaxValue,

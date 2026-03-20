@@ -20,6 +20,9 @@ internal class Program
 
         var context = new HugoLandContext(options);
 
+        // si besoin vider BD
+        // context.Database.EnsureDeleted();
+
         // Crée la BD et applique le seed
         context.Database.EnsureCreated();
 

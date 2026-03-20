@@ -70,6 +70,22 @@ internal class MenuManager
                 .ThenInclude(p => p.Installations)
             .First();
 
+        // reset les données pour une nouvelle partie
+        game.CurrentPlayerIndex = 0;
+        game.TurnNumber = 1;
+
+        foreach (var p in game.Players)
+        {
+            foreach (var a in p.Detachments)
+            {
+                a.Actionable = true;
+                a.Energy = 5;
+            }
+        }
+
+        _context.SaveChanges();
+
+
         PlayGame(game);
     }
 

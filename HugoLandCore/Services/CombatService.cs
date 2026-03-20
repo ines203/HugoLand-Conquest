@@ -7,7 +7,7 @@ namespace HugoLand.Core.Services;
 public class CombatService
 {
     private readonly HugoLandContext _context;
-    private ArmyService armyService;
+    private ArmyService? armyService;
     private InstallationService installationService;
     private Random _rnd = new Random();
 
@@ -19,6 +19,11 @@ public class CombatService
     }
 
     // Méthodes
+    public void SetArmyService(ArmyService armySvc)
+    {
+        armyService = armySvc;
+    }
+
 
     /// <summary>
     /// Method to make the combat happen
@@ -64,6 +69,12 @@ public class CombatService
 
     private void TryRetreat(MilitaryDetachment winner, MilitaryDetachment loser, bool attackerWins, int direction)
     {
+        if (armyService == null)
+            return;
+
+        if (loser.TerritoryId == null || loser.Territory == null)
+            return;
+
         int old_territory_id;
 
         if (loser.Force < 10)
@@ -83,7 +94,7 @@ public class CombatService
             {
                 try
                 {
-                    armyService.TryMove(loser.Id, dir);
+                    armyService.TryMove(loser.Id, direction);
                     foreach (Installation bulding in loser.Player.Installations)
                     {
                         if (bulding.TerritoryId == loser.TerritoryId && bulding.Type == InstallationType.Camp)

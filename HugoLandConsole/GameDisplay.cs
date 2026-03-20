@@ -91,6 +91,11 @@ internal class GameDisplay
 
                 if (territory.Detachment != null)
                 {
+                    // Lettre du joueur
+                    string prefix = territory.Detachment.PlayerId == 1 ? "A" : "B";
+                    text += prefix;
+
+                    // Force
                     if (territory.Detachment.Force <= 999)
                         text += territory.Detachment.Force.ToString();
                     else

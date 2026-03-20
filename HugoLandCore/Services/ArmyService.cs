@@ -48,30 +48,56 @@ public class ArmyService
 
         switch (direction)
         {
-            /*
-            'N' => 0,
-            'E' => 1,
-            'S' => 2,
-            'W' => 3,
-            */
             case 0:
-                new_territory_id = army.TerritoryId - army.Player.Game.Map.Width;
+                new_territory_id = army.TerritoryId!.Value - army.Player.Game.Map.Width;
                 break;
             case 1:
-                new_territory_id = army.TerritoryId + 1;
+                new_territory_id = army.TerritoryId!.Value + 1;
                 break;
             case 2:
-                new_territory_id = army.TerritoryId + army.Player.Game.Map.Width;
+                new_territory_id = army.TerritoryId!.Value + army.Player.Game.Map.Width;
                 break;
             case 3:
-                new_territory_id = army.TerritoryId - 1;
+                new_territory_id = army.TerritoryId!.Value - 1;
                 break;
             default:
-                new_territory_id = army.TerritoryId;
+                new_territory_id = army.TerritoryId!.Value;
                 break;
         }
 
+        var new_territory = _context.Territories.Find(new_territory_id);
+        if (new_territory == null)
+            return;
 
+        // Détacher l’ancienne case
+        if (army.Territory != null)
+            army.Territory.Detachment = null;
+
+        // Attacher la nouvelle case avant merge
+        army.Territory = new_territory;
+        army.TerritoryId = new_territory_id;
+        new_territory.Detachment = army;
+
+        // Maintenant que l’armée est sur la case puis merge
+        foreach (MilitaryDetachment allies in army.Player.Detachments)
+        {
+            if (allies.TerritoryId == new_territory_id && allies.Id != army.Id)
+            {
+                TryMerge(army);
+                break;
+            }
+        }
+
+        // Combat
+        foreach (MilitaryDetachment enemy_detachment in enemy.Detachments)
+        {
+            if (enemy_detachment.TerritoryId == new_territory_id)
+            {
+                combatService.ResolveCombat(army, enemy_detachment, direction);
+            }
+        }
+
+        // Bâtiments
         foreach (Installation building in enemy.Installations)
         {
             if (building.TerritoryId == new_territory_id && !building.IsOccupied)
@@ -81,31 +107,14 @@ public class ArmyService
             }
         }
 
-        foreach (MilitaryDetachment allies in army.Player.Detachments)
-        {
-            if (allies.TerritoryId == new_territory_id)
-            {
-                TryMerge(army);
-            }
-        }
-
-        foreach (MilitaryDetachment enemy_detachment in enemy.Detachments)
-        {
-            if (enemy_detachment.TerritoryId == new_territory_id)
-            {
-                combatService.ResolveCombat(army, enemy_detachment, direction);
-            }
-        }
-
-        var new_territory = _context.Territories.Find(new_territory_id);
-        if (new_territory == null)
-            return;
-
         army.Energy -= new_territory.TerrainEnergyCost;
         army.Actionable = false;
-        army.TerritoryId = new_territory_id;
+
         _context.SaveChanges();
     }
+
+
+
     public void TrySplit(int armyId, int direction, int split_qty) //direction en int temporairement, ca va surement etre une enum?
     {
         Player enemy = null;
@@ -120,21 +129,22 @@ public class ArmyService
         switch (direction)
         {
             case 0:
-                new_territory_id = army.TerritoryId - army.Player.Game.Map.Width;
+                new_territory_id = army.TerritoryId!.Value - army.Player.Game.Map.Width;
                 break;
             case 1:
-                new_territory_id = army.TerritoryId + 1;
+                new_territory_id = army.TerritoryId!.Value + 1;
                 break;
             case 2:
-                new_territory_id = army.TerritoryId + army.Player.Game.Map.Width;
+                new_territory_id = army.TerritoryId!.Value + army.Player.Game.Map.Width;
                 break;
             case 3:
-                new_territory_id = army.TerritoryId - 1;
+                new_territory_id = army.TerritoryId!.Value - 1;
                 break;
             default:
-                new_territory_id = army.TerritoryId;
-                break; ;
+                new_territory_id = army.TerritoryId!.Value;
+                break;
         }
+
 
         // si en dehors de la map
         var new_territory = _context.Territories.Find(new_territory_id);
@@ -205,20 +215,27 @@ public class ArmyService
 
     public void TryMerge(MilitaryDetachment army)
     {
+        // Cherche un allié sur le même territoire
+        var allies = army.Player.Detachments
+            .Where(d => d.TerritoryId == army.TerritoryId && d.Id != army.Id)
+            .ToList();
 
-        foreach (MilitaryDetachment target in army.Player.Detachments)
+        foreach (var target in allies)
         {
-            //verify for ally troops
-            if (target.TerritoryId == army.TerritoryId)
-            {
-                army.Force += target.Force;
-                army.Energy = (target.Energy <= army.Energy) ? target.Energy : army.Energy;
+            // Ajouter la force avant de supprimer
+            army.Force += target.Force;
 
-                //delete army object
-                _context.Detachments.Remove(target); 
-                _context.SaveChanges();
-            }
+            // Détacher proprement l’armée absorbée
+            if (target.Territory != null)
+                target.Territory.Detachment = null;
+
+            target.TerritoryId = null;
+
+            // Supprimer l’armée absorbée
+            _context.Detachments.Remove(target);
         }
+
+        _context.SaveChanges();
     }
 
     public void ReinforceArmy(Player player, MilitaryDetachment army, int amount)

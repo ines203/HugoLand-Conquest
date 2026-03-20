@@ -103,21 +103,22 @@ public class CombatService
             switch (direction)
             {
                 case 0:
-                    old_territory_id = loser.TerritoryId + loser.Player.Game.Map.Width;
+                    old_territory_id = loser.TerritoryId!.Value + loser.Player.Game.Map.Width;
                     break;
                 case 1:
-                    old_territory_id = loser.TerritoryId - 1;
+                    old_territory_id = loser.TerritoryId!.Value - 1;
                     break;
                 case 2:
-                    old_territory_id = loser.TerritoryId - loser.Player.Game.Map.Width;
+                    old_territory_id = loser.TerritoryId!.Value - loser.Player.Game.Map.Width;
                     break;
                 case 3:
-                    old_territory_id = loser.TerritoryId + 1;
+                    old_territory_id = loser.TerritoryId!.Value + 1;
                     break;
                 default:
-                    old_territory_id = loser.TerritoryId;
+                    old_territory_id = loser.TerritoryId!.Value;
                     break;
             }
+
             armyService.TryMove(loser.Id, direction);
             retreated = true;
         }

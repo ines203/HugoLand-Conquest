@@ -27,7 +27,7 @@ public class InstallationService
                     PlayerId = detachment.Player.Id,
                     IsOccupied = true,
                     Territory = detachment.Territory,
-                    TerritoryId = detachment.TerritoryId
+                    TerritoryId = detachment.TerritoryId!.Value
                 };
                 detachment.Actionable = false;
             }

@@ -33,7 +33,7 @@ internal class GameDisplay
             .Count(i => i.Territory.MapId == map.Id && i.PlayerId == player.Id);
 
         int nbTroop = detachments
-            .Where(d => d.PlayerId == player.Id)
+            .Where(d => d.PlayerId == player.Id && d.Territory != null)
             .Sum(d => d.Force);
 
         /*
@@ -120,7 +120,7 @@ internal class GameDisplay
         int maintenance = 0;
         int nbArmies = 0;
         int nbForces = 0;
-        foreach (MilitaryDetachment detachment in player.Detachments)
+        foreach (MilitaryDetachment detachment in player.Detachments.Where(d => d.Territory != null))
         {
             maintenance += detachment.Force / 10;
             nbForces += detachment.Force;
@@ -155,6 +155,10 @@ internal class GameDisplay
 
     public int DisplayArmyActions(Player player, MilitaryDetachment detachment)
     {
+        // armée supprimée donc on passe
+        if (detachment.Territory == null)
+            return 6; 
+
         bool success = false;
         // Tests to see if the different actions are available for the player, based on the state of the army and the territory
         bool opt1 = (detachment.Energy > 0);
@@ -462,15 +466,15 @@ internal class GameDisplay
         Console.WriteLine();
 
         Console.WriteLine("Energy gained (+2)");
-        foreach(MilitaryDetachment detachment in player.Detachments)
+        foreach (MilitaryDetachment detachment in player.Detachments.Where(d => d.Territory != null))
         {
             // Calculation maintenance for later
             maintenance += detachment.Force / 10;
 
             if (detachment.Energy < 4)
-                Console.WriteLine($"Army ({detachment.Territory.X},{detachment.Territory.Y}) : {detachment.Energy} -> {detachment.Energy + 2}");
+                Console.WriteLine($"Army ({detachment.Territory!.X},{detachment.Territory!.Y}) : {detachment.Energy} -> {detachment.Energy + 2}");
             else if (detachment.Energy < 5)
-                Console.WriteLine($"Army ({detachment.Territory.X},{detachment.Territory.Y}) : {detachment.Energy} -> 5");
+                Console.WriteLine($"Army ({detachment.Territory!.X},{detachment.Territory!.Y}) : {detachment.Energy} -> 5");
         }
         Console.WriteLine();
 

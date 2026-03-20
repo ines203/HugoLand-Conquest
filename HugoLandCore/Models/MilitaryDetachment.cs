@@ -10,7 +10,7 @@ public class MilitaryDetachment
     public int PlayerId { get; set; }
     public Player? Player { get; set; }
 
-    public int TerritoryId { get; set; }
+    public int? TerritoryId { get; set; }
     public Territory? Territory { get; set; }
 
     //pour ef core

@@ -37,7 +37,7 @@ internal class GameDisplay
 
         Console.ForegroundColor = ConsoleColor.DarkGray;
         Console.Write("Turn " + game.TurnNumber + " — Player ");
-        if (player.Id == 0)// If player A
+        if (player.Id == 1)// If player A
             Console.Write("A");
         else// If player B
             Console.Write("B");
@@ -120,7 +120,7 @@ internal class GameDisplay
         Console.WriteLine("═══════════════════════════════════════════════════");
 
         Console.Write("Joueur ");
-        if (player.Id == 0)// If player A
+        if (player.Id == 1)// If player A
             Console.Write("A");
         else// If player B
             Console.Write("B");
@@ -387,7 +387,7 @@ internal class GameDisplay
 
         Console.ForegroundColor = ConsoleColor.Gray;
         Console.Write($" --- Start of turn {game.TurnNumber} — Player ");
-        if (player.Id == 0)// If player A
+        if (player.Id == 1)// If player A
             Console.Write("A");
         else// If player B
             Console.Write("B");

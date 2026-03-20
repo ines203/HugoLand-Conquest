@@ -8,10 +8,12 @@ public class ArmyService
     private readonly HugoLandContext _context;
     private CombatService combatService;
 
-    public ArmyService(HugoLandContext context)
+    public ArmyService(HugoLandContext context, CombatService combat)
     {
         _context = context;
+        combatService = combat;
     }
+
 
     //Section donné dans l'énoncé
 
@@ -96,9 +98,12 @@ public class ArmyService
         }
 
         var new_territory = _context.Territories.Find(new_territory_id);
+        if (new_territory == null)
+            return;
 
         army.Energy -= new_territory.TerrainEnergyCost;
         army.Actionable = false;
+        army.TerritoryId = new_territory_id;
         _context.SaveChanges();
     }
     public void TrySplit(int armyId, int direction, int split_qty) //direction en int temporairement, ca va surement etre une enum?

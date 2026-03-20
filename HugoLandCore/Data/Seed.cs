@@ -47,28 +47,6 @@ public static class Seed
                 TurnNumber = 1,
                 MapId = 1
             }
-            /*
-            new Game
-            {
-                Id = 2,
-                Name = "Game B",
-                Status = GameStatus.InProgress,
-                CurrentPlayerIndex = 1,
-                TurnNumber = 57,
-                MapId = 1
-            }
-            */
-            /*
-            new Game
-            {
-                Id = int.MaxValue,
-                Name = "Game C",
-                Status = GameStatus.InProgress,
-                CurrentPlayerIndex = 0,
-                TurnNumber = int.MaxValue,
-                MapId = 1
-            }
-            */
         );
 
         // 4) Players
@@ -96,14 +74,16 @@ public static class Seed
         {
             Id = 1,
             Type = InstallationType.Fortification,
-            TerritoryId = territories.Single(t => t.X == 0 && t.Y == 3).Id
+            TerritoryId = territories.Single(t => t.X == 0 && t.Y == 3).Id,
+            PlayerId = 1
         };
 
         var fort2 = new Installation
         {
             Id = 2,
             Type = InstallationType.Fortification,
-            TerritoryId = territories.Single(t => t.X == 3 && t.Y == 0).Id
+            TerritoryId = territories.Single(t => t.X == 3 && t.Y == 0).Id,
+            PlayerId = 2
         };
 
         model.Entity<Installation>().HasData(fort1, fort2);

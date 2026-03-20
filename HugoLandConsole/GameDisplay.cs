@@ -71,6 +71,8 @@ internal class GameDisplay
 
                 if (territory.Detachment != null && territory.Detachment.PlayerId == player.Id)
                     Console.ForegroundColor = ConsoleColor.Green;
+                else if (territory.Installation != null && territory.Installation.PlayerId == player.Id)
+                    Console.ForegroundColor = ConsoleColor.Green;
                 else
                     Console.ForegroundColor = ConsoleColor.Red;
 

@@ -136,6 +136,11 @@ public class ArmyService
                 break; ;
         }
 
+        // si en dehors de la map
+        var new_territory = _context.Territories.Find(new_territory_id);
+        if (new_territory == null)
+            return;
+
         new_detachment = MilitaryDetachment.Create(new_territory_id, split_qty, army.Energy, false);
         new_detachment.Energy -= new_detachment.Territory.TerrainEnergyCost;
         _context.SaveChanges();

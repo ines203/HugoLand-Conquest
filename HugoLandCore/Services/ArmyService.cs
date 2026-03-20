@@ -46,6 +46,12 @@ public class ArmyService
 
         switch (direction)
         {
+            /*
+            'N' => 0,
+            'E' => 1,
+            'S' => 2,
+            'W' => 3,
+            */
             case 0:
                 new_territory_id = army.TerritoryId - army.Player.Game.Map.Width;
                 break;

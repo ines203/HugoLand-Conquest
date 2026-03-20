@@ -295,21 +295,74 @@ internal class GameDisplay
         Console.WriteLine();
         Console.WriteLine("Adjacent territories:");
 
-        DisplayAdjacentTerritory('N', 0, 1,player, map, detachment);
-        DisplayAdjacentTerritory('S', 0, -1,player, map, detachment);
-        DisplayAdjacentTerritory('W', -1, 0,player, map, detachment);
-        DisplayAdjacentTerritory('E', 1, 0,player, map, detachment);
+        bool nMove = DisplayAdjacentTerritory('N', 0, -1,player, map, detachment);
+        bool sMove = DisplayAdjacentTerritory('S', 0, 1,player, map, detachment);
+        bool wMove = DisplayAdjacentTerritory('W', -1, 0,player, map, detachment);
+        bool eMove = DisplayAdjacentTerritory('E', 1, 0,player, map, detachment);
 
         Console.WriteLine();
         do
         {
             Console.Write("Choice(N / S / W / E): ");
-            input = Console.ReadLine().ToUpper();
-            if (input == "N" || input == "S" || input == "W" || input == "E")
-                return input[0];
-            Removelastline();
-            Removelastline();
-            Console.WriteLine("Invalid input. Please enter either N / S / W / E");
+            input = Console.ReadLine();
+            if (input == null)
+            {
+                Removelastline();
+                Removelastline();
+                Console.WriteLine("Invalid input. Please enter either N / S / W / E");
+            }
+            else
+            {
+                input = input.ToUpper();
+                switch (input)
+                {
+                    case "N":
+                        if (nMove)
+                            return 'N';
+                        else
+                        {
+                            Removelastline();
+                            Removelastline();
+                            Console.WriteLine("North is not accessible");
+                        }
+                        break;
+                    case "S":
+                        if (sMove)
+                            return 'S';
+                        else
+                        {
+                            Removelastline();
+                            Removelastline();
+                            Console.WriteLine("South is not accessible");
+                        }
+                        break;
+                    case "W":
+                        if (wMove)
+                            return 'W';
+                        else
+                        {
+                            Removelastline();
+                            Removelastline();
+                            Console.WriteLine("West is not accessible");
+                        }
+                        break;
+                    case "E":
+                        if (eMove)
+                            return 'E';
+                        else
+                        {
+                            Removelastline();
+                            Removelastline();
+                            Console.WriteLine("East is not accessible");
+                        }
+                        break;
+                    default:
+                        Removelastline();
+                        Removelastline();
+                        Console.WriteLine("Invalid input. Please enter either N / S / W / E");
+                        break;
+                }
+            }
         } while (true);
     }
 
@@ -471,9 +524,10 @@ internal class GameDisplay
 
     private void Removelastline()
     {
-        Console.SetCursorPosition(0, Console.CursorTop - 1);
+        int currentLineCursor = Console.CursorTop - 1;
+        Console.SetCursorPosition(0, currentLineCursor);
         Console.Write(new string(' ', Console.WindowWidth));
-        Console.SetCursorPosition(0, Console.CursorTop - 1);
+        Console.SetCursorPosition(0, currentLineCursor);
     }
 
     private void DisplayHorizontalLine(in int MapWidth)
@@ -486,12 +540,12 @@ internal class GameDisplay
         }
         Console.WriteLine("+");
     }
-    private void DisplayAdjacentTerritory(char c, sbyte x, sbyte y,Player player,  Map map, MilitaryDetachment detachment)
+    private bool DisplayAdjacentTerritory(char c, sbyte x, sbyte y,Player player,  Map map, MilitaryDetachment detachment)
     {
         Console.Write($"[{c}] ({detachment.Territory.X + x}, {detachment.Territory.Y + y}) - ");
         Territory? territory = map.Territories.FirstOrDefault(
-            t => t.X == detachment.Territory.X &&
-            t.Y - 1 == detachment.Territory.Y);
+            t => t.X == detachment.Territory.X + x &&
+            t.Y == detachment.Territory.Y + y);
         if (territory != null)
         {
             if (territory.Detachment == null)
@@ -503,13 +557,16 @@ internal class GameDisplay
             Console.Write("Cost : 1 energy  ");
 
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write("Accessible");
+            Console.WriteLine("Accessible");
+            Console.ForegroundColor = ConsoleColor.Gray;
+            return true;
         }
         else
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Inaccessible");
+            Console.WriteLine("              Inaccessible");
+            Console.ForegroundColor = ConsoleColor.Gray;
+            return false;
         }
-        Console.ForegroundColor = ConsoleColor.Gray;
     }
 }

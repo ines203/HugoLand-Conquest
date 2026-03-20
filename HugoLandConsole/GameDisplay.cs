@@ -436,6 +436,7 @@ internal class GameDisplay
 
     public void DisplayBeginningTurn (Game game, Player player)
     {
+        Console.Clear();
         int nbFortif = player.Installations
             .Count(i => i.Type == InstallationType.Fortification);
         int maintenance = 0;
@@ -467,7 +468,8 @@ internal class GameDisplay
         Console.WriteLine($"Balance : {player.Gold} -> {(nbFortif * 5) - maintenance} gold");
         Console.WriteLine();
         Console.WriteLine($" --- Your armies ({player.Detachments.Count}) are ready ---");
-        Console.WriteLine();
+        Console.WriteLine("Press Enter to continue");
+        Console.ReadLine();
     }
 
     public char DisplayMenu()

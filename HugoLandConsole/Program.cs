@@ -29,7 +29,7 @@ internal class Program
         // Services
         var installationService = new InstallationService(context);
         var combatService = new CombatService(context, installationService);
-        var armyService = new ArmyService(context, combatService);
+        var armyService = new ArmyService(context, combatService, installationService);
         combatService.SetArmyService(armyService);
         var display = new GameDisplay(context);
 

@@ -38,7 +38,7 @@ public class InstallationService
     }
     public void UpgradeToFort(MilitaryDetachment detachment)
     {
-        if (detachment.Territory.Installation.Type == InstallationType.Camp)
+        if (detachment.Territory.Installation != null && detachment.Territory.Installation.Type == InstallationType.Camp)// ERROR
         {
             if (detachment.Player.Gold > 50)
             {
@@ -53,16 +53,14 @@ public class InstallationService
 
     public void CheckDestructionCamp(Installation building)
     {
-        bool to_delete = true;
-
-        if (building.Type == InstallationType.Camp)
+        if (building != null && building.Type == InstallationType.Camp)
         {
-            if (building.IsOccupied)
-                to_delete = false;
+            //if (!building.IsOccupied)
+            if (building.Territory.Detachment == null)
+            {
+                _context.Installations.Remove(building);
+                _context.SaveChanges();
+            }
         }
-        
-        if (to_delete)
-            _context.Installations.Remove(building);
-        _context.SaveChanges();
     }
 }

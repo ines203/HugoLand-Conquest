@@ -1,5 +1,6 @@
 ﻿using HugoLandCore.Data;
 using HugoLandCore.Models;
+using HugoLandCore.Services;
 
 namespace HugoLand.Core.Services;
 
@@ -7,28 +8,14 @@ public class ArmyService
 {
     private readonly HugoLandContext _context;
     private CombatService combatService;
+    private InstallationService installationService;
 
-    public ArmyService(HugoLandContext context, CombatService combat)
+    public ArmyService(HugoLandContext context, CombatService combat, InstallationService installation)
     {
         _context = context;
         combatService = combat;
+        installationService = installation;
     }
-
-
-    //Section donné dans l'énoncé
-
-    //public bool TryMove(MilitaryDetachment army, Territory destination)
-    //{
-    //    if (army.Force < 10) return false;             // Détachement isolé
-    //    if (army.Energy < destination.MovementCost) return false;
-
-    //    army.TerritoryId = destination.Id;
-    //    army.Energy -= destination.MovementCost;
-    //    _context.SaveChanges();
-    //    return true;
-    //}
-
-    //Fin de section donné dans l'énoncé
 
     // Méthodes
     public void TryMove(int armyId, int direction)
@@ -65,13 +52,16 @@ public class ArmyService
                 break;
         }
 
+        var old_territory = army.Territory;
         var new_territory = _context.Territories.Find(new_territory_id);
         if (new_territory == null)
             return;
 
         // Détacher l’ancienne case
         if (army.Territory != null)
+        {
             army.Territory.Detachment = null;
+        }
 
         // Attacher la nouvelle case avant merge
         army.Territory = new_territory;
@@ -109,6 +99,8 @@ public class ArmyService
 
         army.Energy -= new_territory.TerrainEnergyCost;
         army.Actionable = false;
+
+        installationService.CheckDestructionCamp(old_territory.Installation);
 
         _context.SaveChanges();
     }

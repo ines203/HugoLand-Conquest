@@ -17,171 +17,190 @@ public class ArmyService
         installationService = installation;
     }
 
-    // Méthodes
     public void TryMove(int armyId, int direction)
     {
         var army = _context.Detachments.Find(armyId);
-        int new_territory_id = 0;
-        Player enemy = null;
 
-        if (army == null || army.Force < 11)
+        if (army == null || army.Force < 10)
             return;
 
-        foreach (Player player in army.Player.Game.Players)
+        // Calculer le territoire cible
+        int width = army.Player!.Game!.Map!.Width;
+        int new_territory_id = direction switch
         {
-            if (player.Id != army.PlayerId)
-                enemy = player;
-        }
+            0 => army.TerritoryId!.Value - width, // N
+            1 => army.TerritoryId!.Value + 1,     // E
+            2 => army.TerritoryId!.Value + width, // S
+            3 => army.TerritoryId!.Value - 1,     // O
+            _ => army.TerritoryId!.Value
+        };
 
-        switch (direction)
-        {
-            case 0:
-                new_territory_id = army.TerritoryId!.Value - army.Player.Game.Map.Width;
-                break;
-            case 1:
-                new_territory_id = army.TerritoryId!.Value + 1;
-                break;
-            case 2:
-                new_territory_id = army.TerritoryId!.Value + army.Player.Game.Map.Width;
-                break;
-            case 3:
-                new_territory_id = army.TerritoryId!.Value - 1;
-                break;
-            default:
-                new_territory_id = army.TerritoryId!.Value;
-                break;
-        }
-
-        var old_territory = army.Territory;
         var new_territory = _context.Territories.Find(new_territory_id);
         if (new_territory == null)
             return;
 
-        // Détacher l’ancienne case
-        if (army.Territory != null)
-        {
-            army.Territory.Detachment = null;
-        }
+        // Vérifier l'énergie disponible
+        if (army.Energy < new_territory.TerrainEnergyCost)
+            return;
 
-        // Attacher la nouvelle case avant merge
+        // Trouver l'ennemi
+        Player? enemy = army.Player.Game.Players
+            .FirstOrDefault(p => p.Id != army.PlayerId);
+
+        var old_territory = army.Territory;
+
+        // Détacher l'ancienne case
+        if (army.Territory != null)
+            army.Territory.Detachment = null;
+
+        // Attacher la nouvelle case
         army.Territory = new_territory;
         army.TerritoryId = new_territory_id;
         new_territory.Detachment = army;
 
-        // Maintenant que l’armée est sur la case puis merge
-        foreach (MilitaryDetachment allies in army.Player.Detachments.ToList())
+        // Fusion avec allié sur la même case
+        foreach (MilitaryDetachment ally in army.Player.Detachments.ToList())
         {
-            if (allies.TerritoryId == new_territory_id && allies.Id != army.Id)
+            if (ally.TerritoryId == new_territory_id && ally.Id != army.Id)
             {
                 TryMerge(army);
                 break;
             }
         }
 
-        // Combat
-        foreach (MilitaryDetachment enemy_detachment in enemy.Detachments.ToList())
+        // Combat avec ennemi
+        if (enemy != null)
         {
-            if (enemy_detachment.TerritoryId == new_territory_id)
+            foreach (MilitaryDetachment enemy_detachment in enemy.Detachments.ToList())
             {
-                combatService.ResolveCombat(army, enemy_detachment, direction);
+                if (enemy_detachment.TerritoryId == new_territory_id)
+                {
+                    combatService.ResolveCombat(army, enemy_detachment, direction);
+                    break;
+                }
             }
         }
 
-        // Bâtiments
-        foreach (Installation building in enemy.Installations)
+        // Capture d'une fortification ennemie non défendue
+        if (enemy != null)
         {
-            if (building.TerritoryId == new_territory_id && !building.IsOccupied)
+            foreach (Installation building in enemy.Installations.ToList())
             {
-                building.PlayerId = army.PlayerId;
-                building.IsOccupied = true;
+                if (building.TerritoryId == new_territory_id)
+                {
+                    // Vérifier qu'il n'y a plus d'ennemi sur le territoire
+                    bool hasEnemyArmy = enemy.Detachments
+                        .Any(d => d.TerritoryId == new_territory_id);
+
+                    if (!hasEnemyArmy)
+                    {
+                        building.PlayerId = army.PlayerId;
+                        building.Player = army.Player;
+                        building.IsOccupied = true;
+                    }
+                }
             }
         }
 
+        // Déduire l'énergie
         army.Energy -= new_territory.TerrainEnergyCost;
         army.Actionable = false;
 
-        installationService.CheckDestructionCamp(old_territory.Installation);
+        // Détruire le camp si l'armée quitte l'ancien territoire
+        if (old_territory != null)
+            installationService.CheckDestructionCamp(old_territory.Installation);
 
         _context.SaveChanges();
     }
 
-
-
-    public void TrySplit(int armyId, int direction, int split_qty) //direction en int temporairement, ca va surement etre une enum?
+    public void TrySplit(int armyId, int direction, int split_qty)
     {
-        Player enemy = null;
         var army = _context.Detachments.Find(armyId);
-        MilitaryDetachment new_detachment;
-        int new_territory_id = 0;
 
+        if (army == null)
+            return;
+
+        // L'armée d'origine doit avoir >= 11 soldats
+        if (army.Force < 11)
+            return;
+
+        // Le groupe qui part doit former une armée (>= 10 soldats)
         if (split_qty < 10)
             return;
-        army.Force -= split_qty;
 
-        switch (direction)
+        // Il doit rester au moins 1 soldat
+        if (army.Force - split_qty < 1)
+            return;
+
+        int width = army.Player!.Game!.Map!.Width;
+        int new_territory_id = direction switch
         {
-            case 0:
-                new_territory_id = army.TerritoryId!.Value - army.Player.Game.Map.Width;
-                break;
-            case 1:
-                new_territory_id = army.TerritoryId!.Value + 1;
-                break;
-            case 2:
-                new_territory_id = army.TerritoryId!.Value + army.Player.Game.Map.Width;
-                break;
-            case 3:
-                new_territory_id = army.TerritoryId!.Value - 1;
-                break;
-            default:
-                new_territory_id = army.TerritoryId!.Value;
-                break;
-        }
+            0 => army.TerritoryId!.Value - width,
+            1 => army.TerritoryId!.Value + 1,
+            2 => army.TerritoryId!.Value + width,
+            3 => army.TerritoryId!.Value - 1,
+            _ => army.TerritoryId!.Value
+        };
 
-
-        // si en dehors de la map
         var new_territory = _context.Territories.Find(new_territory_id);
         if (new_territory == null)
             return;
 
-        // créer le nouveau détachement
-        new_detachment = MilitaryDetachment.Create(new_territory_id, split_qty, army.Energy, false);
+        // Vérifier l'énergie
+        if (army.Energy < new_territory.TerrainEnergyCost)
+            return;
 
-        // assigner le joueur
+        // Déduire les soldats de l'armée d'origine
+        army.Force -= split_qty;
+
+        // Créer le nouveau détachement avec l'énergie de l'armée d'origine
+        var new_detachment = MilitaryDetachment.Create(new_territory_id, split_qty, army.Energy, false);
         new_detachment.PlayerId = army.PlayerId;
         new_detachment.Player = army.Player;
+        new_detachment.Territory = new_territory;
 
-        // assigner le territoire
+        // Déduire l'énergie du déplacement
+        new_detachment.Energy -= new_territory.TerrainEnergyCost;
+
         new_territory.Detachment = new_detachment;
-
-        // ajouter dans la BD
         _context.Detachments.Add(new_detachment);
 
-        // énergie
-        new_detachment.Energy -= new_territory.TerrainEnergyCost;
+        // Marquer l'armée d'origine comme ayant agi
+        army.Actionable = false;
 
         _context.SaveChanges();
 
-
-        foreach (Player player in army.Player.Game.Players)
+        // Fusion si allié présent
+        foreach (MilitaryDetachment ally in army.Player.Detachments.ToList())
         {
-            if (player.Id != army.PlayerId)
-                enemy = player;
-        }
-
-        foreach (MilitaryDetachment enemy_detachment in enemy.Detachments)
-        {
-            if (enemy_detachment.TerritoryId == new_territory_id)
+            if (ally.TerritoryId == new_territory_id && ally.Id != new_detachment.Id)
             {
-                combatService.ResolveCombat(army, enemy_detachment, direction);
+                TryMerge(new_detachment);
+                break;
             }
         }
 
+        // Combat si ennemi présent
+        Player? enemy = army.Player.Game.Players
+            .FirstOrDefault(p => p.Id != army.PlayerId);
+
+        if (enemy != null)
+        {
+            foreach (MilitaryDetachment enemy_detachment in enemy.Detachments.ToList())
+            {
+                if (enemy_detachment.TerritoryId == new_territory_id)
+                {
+                    combatService.ResolveCombat(new_detachment, enemy_detachment, direction);
+                    break;
+                }
+            }
+        }
     }
 
     /// <summary>
-    /// Au debut du tour, s'occupe de fair gagner energie a tt le monde
+    /// Récupération d'énergie en début de tour (+2, max 5).
+    /// Seules les armées >= 10 soldats sont actionnables.
     /// </summary>
-    /// <param name="armyId"></param>
     public void GainEnergy(int armyId)
     {
         var army = _context.Detachments.Find(armyId);
@@ -192,12 +211,11 @@ public class ArmyService
         if (army.Force >= 10)
         {
             army.Actionable = true;
-            army.Energy += 2;
-            if (army.Energy > 5)
-                army.Energy = 5;
+            army.Energy = Math.Min(5, army.Energy + 2);
         }
         else
         {
+            // Détachement isolé : énergie fixée à 5, non actionnable
             army.Energy = 5;
             army.Actionable = false;
         }
@@ -205,25 +223,25 @@ public class ArmyService
         _context.SaveChanges();
     }
 
+    /// <summary>
+    /// Fusionne les alliés sur le même territoire.
+    /// Force = somme, Énergie = minimum des deux.
+    /// </summary>
     public void TryMerge(MilitaryDetachment army)
     {
-        // Cherche un allié sur le même territoire
-        var allies = army.Player.Detachments
+        var allies = army.Player!.Detachments
             .Where(d => d.TerritoryId == army.TerritoryId && d.Id != army.Id)
             .ToList();
 
         foreach (var target in allies)
         {
-            // Ajouter la force avant de supprimer
             army.Force += target.Force;
+            army.Energy = Math.Min(army.Energy, target.Energy); // règle : minimum des deux
 
-            // Détacher proprement l’armée absorbée
             if (target.Territory != null)
                 target.Territory.Detachment = null;
 
             target.TerritoryId = null;
-
-            // Supprimer l’armée absorbée
             _context.Detachments.Remove(target);
         }
 
@@ -234,22 +252,22 @@ public class ArmyService
     {
         int cost = amount * 2;
 
-        // Vérifier installation
-        if (army.Territory.Installation == null)
+        // Requiert une armée >= 10 soldats
+        if (army.Force < 10)
             return;
 
-        // Vérifier or
+        // Requiert une installation
+        if (army.Territory?.Installation == null)
+            return;
+
+        // Vérifier l'or
         if (player.Gold < cost)
             return;
 
-        // Appliquer renforcement
         army.Force += amount;
         player.Gold -= cost;
-
-        // L’armée a agi
         army.Actionable = false;
 
         _context.SaveChanges();
     }
-
 }

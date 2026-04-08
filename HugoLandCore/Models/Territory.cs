@@ -11,6 +11,7 @@ public class Territory
     public int X { get; set; }
     public int Y { get; set; }
     public TerrainType Terrain { get; set; }
+
     public float TerrainBonus
     {
         get

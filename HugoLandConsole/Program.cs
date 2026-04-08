@@ -15,19 +15,18 @@ internal class Program
     static void Main(string[] args)
     {
         var options = new DbContextOptionsBuilder<HugoLandContext>()
-        .UseInMemoryDatabase("HugoLandDB")
-        .Options;
+            .UseInMemoryDatabase("HugoLandDB")
+            .Options;
 
         var context = new HugoLandContext(options);
 
-        // si besoin vider BD
-        // context.Database.EnsureDeleted();
-
-        // Crée la BD et applique le seed
+        // Vider et recréer la BD pour s'assurer que le seed est appliqué proprement
+        context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
 
         // Services
         var installationService = new InstallationService(context);
+        var economyService = new EconomyService(context);
         var combatService = new CombatService(context, installationService);
         var armyService = new ArmyService(context, combatService, installationService);
         combatService.SetArmyService(armyService);
@@ -39,14 +38,11 @@ internal class Program
             display,
             armyService,
             installationService,
-            combatService
+            combatService,
+            economyService
         );
 
         // Lancer le jeu
         menu.Start();
-
-        // Test pour voir si la base de données est bien créée et accessible, si 16 = fonctionne, si 0 = ne fonctionne pas
-        //Console.WriteLine($"Nombre de territoires : {db.Territories.Count()}");
-        //Console.ReadLine();
     }
 }

@@ -2,7 +2,10 @@
 
 public enum TerrainType
 {
-    Plaine = 0
+    Plaine,
+    Foret,
+    Montagne,
+    Mer
 }
 
 public class Territory
@@ -20,6 +23,10 @@ public class Territory
             {
                 case TerrainType.Plaine:
                     return 1;
+                case TerrainType.Foret:
+                    return 1.2f;
+                case TerrainType.Montagne:
+                    return 1.3f;
                 default:
                     return 1;
             }
@@ -34,6 +41,10 @@ public class Territory
             {
                 case TerrainType.Plaine:
                     return 1;
+                case TerrainType.Foret:
+                    return 2;
+                case TerrainType.Montagne:
+                    return 3;
                 default:
                     return 1;
             }

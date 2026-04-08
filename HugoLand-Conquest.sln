@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HugoLandConsole", "HugoLand
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HugoLandCore", "HugoLandCore\HugoLandCore.csproj", "{B69C99F7-579A-4A1F-B319-E03C60AC757A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HugoLand.Wpf", "HugoLand.Wpf\HugoLand.Wpf.csproj", "{A17BB618-0FD4-4E14-BAEE-8E1625A68759}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{B69C99F7-579A-4A1F-B319-E03C60AC757A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B69C99F7-579A-4A1F-B319-E03C60AC757A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B69C99F7-579A-4A1F-B319-E03C60AC757A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A17BB618-0FD4-4E14-BAEE-8E1625A68759}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A17BB618-0FD4-4E14-BAEE-8E1625A68759}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A17BB618-0FD4-4E14-BAEE-8E1625A68759}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A17BB618-0FD4-4E14-BAEE-8E1625A68759}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

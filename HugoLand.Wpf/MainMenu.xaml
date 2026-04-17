@@ -7,10 +7,10 @@
         mc:Ignorable="d"
         Title="MainMenu" Height="450" Width="800">
     <Grid>
-        <Button Content="New Game" HorizontalAlignment="Left" Margin="81,217,0,0" VerticalAlignment="Top" Height="43" Width="228" Click="NewGame_Click"/>
-        <Button Content="Load Game" HorizontalAlignment="Left" Margin="81,265,0,0" VerticalAlignment="Top" Height="43" Width="228" Click="LoadGame_Click"/>
-        <Button Content="Quit" HorizontalAlignment="Left" Margin="81,313,0,0" VerticalAlignment="Top" Height="43" Width="228" Click="Quit_Click"/>
-        <Label Content="HugoLand:&#xD;&#xA;Conquest" HorizontalAlignment="Left" Margin="81,75,0,0" VerticalAlignment="Top" Height="105" Width="228" FontSize="36"/>
+        <Button x:Name="btnNew" Content="New Game" HorizontalAlignment="Left" Margin="81,217,0,0" VerticalAlignment="Top" Height="43" Width="228" Click="NewGame_Click"/>
+        <Button x:Name="btnLoad" Content="Load Game" HorizontalAlignment="Left" Margin="81,265,0,0" VerticalAlignment="Top" Height="43" Width="228" Click="LoadGame_Click"/>
+        <Button x:Name="btnQuit" Content="Quit" HorizontalAlignment="Left" Margin="81,313,0,0" VerticalAlignment="Top" Height="43" Width="228" Click="Quit_Click"/>
+        <Label x:Name="lblTitle" Content="HugoLand:&#xD;&#xA;Conquest" HorizontalAlignment="Left" Margin="81,75,0,0" VerticalAlignment="Top" Height="105" Width="228" FontSize="36"/>
         <Label Content="image epique qui montre le jeu jsp" HorizontalAlignment="Left" Margin="469,213,0,0" VerticalAlignment="Top"/>
 
     </Grid>

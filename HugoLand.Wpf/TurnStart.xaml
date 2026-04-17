@@ -1,0 +1,28 @@
+﻿<Window x:Class="HugoLand.Wpf.TurnStart"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:HugoLand.Wpf"
+        mc:Ignorable="d"
+        Title="TurnStart" Height="450" Width="800">
+    <Grid>
+        <Label x:Name="lblStart" Content="Au tour de Player!" HorizontalAlignment="Left" Margin="38,27,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="lblRecovery" Content="Energy Recovery:" HorizontalAlignment="Left" Margin="38,58,0,0" VerticalAlignment="Top"/>
+        <ListView x:Name="lstArmies" d:ItemsSource="{d:SampleData ItemCount=5}" SelectionChanged="ListView_SelectionChanged" Margin="38,89,581,176" ScrollViewer.VerticalScrollBarVisibility="Auto">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header ="Id" Width="50"/>
+                    <GridViewColumn Header ="Coords" Width="70"/>
+                    <GridViewColumn Header ="Energy" Width="50"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Label x:Name="lblEconomy" Content="Economy:" HorizontalAlignment="Left" Margin="334,58,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="lblEarnings" Content="Earnings: +x gold (x occupied fortifications)" HorizontalAlignment="Left" Margin="334,84,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="lblMaintenance" Content="Maintenance: -x gold" HorizontalAlignment="Left" Margin="334,110,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="lblBalance" Content="Balance: x -> y gold" HorizontalAlignment="Left" Margin="334,161,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="btnContinue" Content="Continue" HorizontalAlignment="Center" Margin="0,360,0,0" VerticalAlignment="Top" Height="49" Width="292" Click="btnContinue_Click"/>
+
+    </Grid>
+</Window>

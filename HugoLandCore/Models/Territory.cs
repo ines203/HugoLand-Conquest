@@ -21,11 +21,11 @@ public class Territory
         {
             return Terrain switch
             {
-                TerrainType.Plaine => 1.0f,
-                TerrainType.Foret => 1.2f,
-                TerrainType.Montagne => 1.3f,
-                _ => 1.0f
-            };
+                case TerrainType.Plaine:
+                    return 1;
+                default:
+                    return 1;
+            }
         }
     }
 
@@ -35,12 +35,11 @@ public class Territory
         {
             return Terrain switch
             {
-                TerrainType.Plaine => 1,
-                TerrainType.Foret => 2,
-                TerrainType.Montagne => 3,
-                TerrainType.Mer => int.MaxValue, // infranchissable
-                _ => 1
-            };
+                case TerrainType.Plaine:
+                    return 1;
+                default:
+                    return 1;
+            }
         }
     }
 

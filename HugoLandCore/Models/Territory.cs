@@ -2,7 +2,10 @@
 
 public enum TerrainType
 {
-    Plaine = 0
+    Plaine = 0,
+    Foret = 1,
+    Montagne = 2,
+    Mer = 3
 }
 
 public class Territory
@@ -16,13 +19,13 @@ public class Territory
     {
         get
         {
-            switch (Terrain)
+            return Terrain switch
             {
-                case TerrainType.Plaine:
-                    return 1;
-                default:
-                    return 1;
-            }
+                TerrainType.Plaine => 1.0f,
+                TerrainType.Foret => 1.2f,
+                TerrainType.Montagne => 1.3f,
+                _ => 1.0f
+            };
         }
     }
 
@@ -30,15 +33,18 @@ public class Territory
     {
         get
         {
-            switch (Terrain)
+            return Terrain switch
             {
-                case TerrainType.Plaine:
-                    return 1;
-                default:
-                    return 1;
-            }
+                TerrainType.Plaine => 1,
+                TerrainType.Foret => 2,
+                TerrainType.Montagne => 3,
+                TerrainType.Mer => int.MaxValue, // infranchissable
+                _ => 1
+            };
         }
     }
+
+    public bool IsPassable => Terrain != TerrainType.Mer;
 
     public int MapId { get; set; }
     public Map? Map { get; set; }

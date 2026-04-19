@@ -17,8 +17,11 @@ public class Game
     public int MapId { get; set; }
     public Map? Map { get; set; }
 
+    // Lien optionnel vers le WorldTemplate utilisé pour créer la partie
+    public int? WorldTemplateId { get; set; }
+    public WorldTemplate? WorldTemplate { get; set; }
+
     public ICollection<Player> Players { get; set; } = new List<Player>();
     public ICollection<CombatEvent> CombatEvents { get; set; } = new List<CombatEvent>();
     public ICollection<TurnSnapshot> Snapshots { get; set; } = new List<TurnSnapshot>();
-
 }

@@ -36,14 +36,12 @@ public static class Seed
 
         model.Entity<Territory>().HasData(territories);
 
-        // 3) Game — nom generé automatiquement avec date/heure
-        string gameName = $"Partie {DateTime.Now:yyyy-MM-dd HH\\hmm}";
-
+        // 3) Game — nom fixe dans le seed (renommé au lancement dans StartNewGame)
         model.Entity<Game>().HasData(
             new Game
             {
                 Id = 1,
-                Name = gameName,
+                Name = "New Game",
                 Status = GameStatus.InProgress,
                 CurrentPlayerIndex = 0,
                 TurnNumber = 1,

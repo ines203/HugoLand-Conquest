@@ -15,6 +15,10 @@ public class HugoLandContext : DbContext
     public DbSet<CombatEvent> CombatEvents => Set<CombatEvent>();
     public DbSet<TurnSnapshot> Snapshots => Set<TurnSnapshot>();
 
+    // TP2
+    public DbSet<WorldTemplate> WorldTemplates => Set<WorldTemplate>();
+    public DbSet<TerritoryTemplate> TerritoryTemplates => Set<TerritoryTemplate>();
+
     public HugoLandContext(DbContextOptions<HugoLandContext> options)
         : base(options)
     {
@@ -24,40 +28,51 @@ public class HugoLandContext : DbContext
     {
         base.OnModelCreating(model);
 
-        // Territory → MilitaryDetachment (1 – 0..1)
+        // Territory -> MilitaryDetachment (1 - 0..1)
         model.Entity<Territory>()
             .HasOne(t => t.Detachment)
             .WithOne(d => d.Territory)
             .HasForeignKey<MilitaryDetachment>(d => d.TerritoryId)
-            .OnDelete(DeleteBehavior.SetNull); // évite les crashs en cascade si un détachement est supprimé
+            .OnDelete(DeleteBehavior.NoAction);
 
-        // Territory → Installation (1 – 0..1)
+        // Territory -> Installation (1 - 0..1)
         model.Entity<Territory>()
             .HasOne(t => t.Installation)
             .WithOne(i => i.Territory)
             .HasForeignKey<Installation>(i => i.TerritoryId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.NoAction);
 
-        // Game → Map (1 – 1)
+        // Game -> Map (1 - 1)
         model.Entity<Game>()
             .HasOne(g => g.Map)
             .WithOne()
             .HasForeignKey<Game>(g => g.MapId);
 
-        // Map → Territories (1 – N)
+        // Map -> Territories (1 - N)
         model.Entity<Map>()
             .HasMany(m => m.Territories)
             .WithOne(t => t.Map)
             .HasForeignKey(t => t.MapId);
 
-        // Player → Detachments (1 – N)
+        // Player -> Detachments (1 - N)
         model.Entity<Player>()
             .HasMany(p => p.Detachments)
             .WithOne(d => d.Player)
             .HasForeignKey(d => d.PlayerId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        model.SeedData();
-    }
+        // TP2 : WorldTemplate -> TerritoryTemplate (1 - N)
+        model.Entity<WorldTemplate>()
+            .HasMany(w => w.Territories)
+            .WithOne(t => t.WorldTemplate)
+            .HasForeignKey(t => t.WorldTemplateId)
+            .OnDelete(DeleteBehavior.Cascade);
 
+        // TP2 : Game -> WorldTemplate (N - 0..1)
+        model.Entity<Game>()
+            .HasOne(g => g.WorldTemplate)
+            .WithMany(w => w.Games)
+            .HasForeignKey(g => g.WorldTemplateId)
+            .OnDelete(DeleteBehavior.SetNull);
+    }
 }

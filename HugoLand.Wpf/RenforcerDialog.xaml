@@ -1,0 +1,68 @@
+<Window x:Class="HugoLandWpf.RenforcerDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Reinforce Army" Height="230" Width="340"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize" Background="#111520"
+        BorderBrush="#1E293B" BorderThickness="1">
+    <StackPanel Margin="24">
+        <TextBlock x:Name="TxtOr" Text="Available gold: 50"
+                   Foreground="#FCD34D" FontSize="13" FontFamily="Consolas"
+                   Margin="0,0,0,14"/>
+
+        <TextBlock Text="Number of troops to recruit:"
+                   Foreground="#94A3B8" FontSize="12" FontFamily="Consolas"/>
+        <TextBox x:Name="TxtMontant" Background="#1A2035" Foreground="White"
+                 BorderBrush="#3B82F6" BorderThickness="1"
+                 Margin="0,6,0,8" Padding="8,6" FontSize="13"
+                 FontFamily="Consolas" CaretBrush="White"
+                 KeyDown="TxtMontant_KeyDown"/>
+
+        <TextBlock x:Name="TxtCout" Text="Cost: 0 gold"
+                   Foreground="#10B981" FontSize="12" FontFamily="Consolas"
+                   Margin="0,0,0,16"/>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Recruit" Width="95" Margin="0,0,10,0"
+                    Background="#1D4ED8" Foreground="White"
+                    BorderThickness="0" Padding="0,9"
+                    FontSize="12" FontFamily="Consolas"
+                    Cursor="Hand" Click="BtnRecruter_Click">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#2563EB"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <Button Content="Cancel" Width="80"
+                    Background="#1A0A0A" Foreground="#EF4444"
+                    BorderBrush="#3F1515" BorderThickness="1"
+                    Padding="0,9" FontSize="12" FontFamily="Consolas"
+                    Cursor="Hand" Click="BtnAnnuler_Click">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#3F1515"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </StackPanel>
+    </StackPanel>
+</Window>

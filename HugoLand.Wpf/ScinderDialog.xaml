@@ -1,0 +1,78 @@
+<Window x:Class="HugoLandWpf.ScinderDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Split Army" Height="320" Width="340"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize" Background="#111520">
+    <DockPanel Margin="24">
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal"
+                    HorizontalAlignment="Right" Margin="0,16,0,0">
+            <Button Content="Split" Width="80" Margin="0,0,10,0"
+                    Background="#F97316" Foreground="White"
+                    BorderThickness="0" Padding="0,10"
+                    FontSize="12" FontFamily="Consolas" Cursor="Hand"
+                    Click="BtnScinder_Click">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#FB923C"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <Button Content="Cancel" Width="80"
+                    Background="#1A0A0A" Foreground="#EF4444"
+                    BorderBrush="#3F1515" BorderThickness="1"
+                    Padding="0,10" FontSize="12" FontFamily="Consolas"
+                    Cursor="Hand" Click="BtnAnnuler_Click">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#3F1515"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </StackPanel>
+
+        <StackPanel DockPanel.Dock="Top">
+            <TextBlock x:Name="TxtForce" Text="Current force: 30"
+                       Foreground="White" FontSize="13" FontFamily="Consolas"
+                       Margin="0,0,0,16"/>
+
+            <TextBlock Text="Troops to send (min 10):"
+                       Foreground="#94A3B8" FontSize="12" FontFamily="Consolas"/>
+            <TextBox x:Name="TxtMontant" Background="#1A2035" Foreground="White"
+                     BorderBrush="#F97316" BorderThickness="1"
+                     Margin="0,6,0,16" Padding="8,6"
+                     FontSize="13" CaretBrush="White"/>
+
+            <TextBlock Text="Direction:" Foreground="#94A3B8"
+                       FontSize="12" FontFamily="Consolas" Margin="0,0,0,8"/>
+            <StackPanel Orientation="Horizontal">
+                <RadioButton x:Name="RbN" Content="  North  " Foreground="White"
+                             FontFamily="Consolas" Margin="0,0,8,0" IsChecked="True"/>
+                <RadioButton x:Name="RbS" Content="  South  " Foreground="White"
+                             FontFamily="Consolas" Margin="0,0,8,0"/>
+                <RadioButton x:Name="RbE" Content="  East  " Foreground="White"
+                             FontFamily="Consolas" Margin="0,0,8,0"/>
+                <RadioButton x:Name="RbO" Content="  West  " Foreground="White"
+                             FontFamily="Consolas"/>
+            </StackPanel>
+        </StackPanel>
+    </DockPanel>
+</Window>

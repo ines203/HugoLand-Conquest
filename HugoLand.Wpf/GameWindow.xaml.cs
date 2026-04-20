@@ -75,9 +75,9 @@ public partial class GameWindow : Window
     private void ChargerPartie()
     {
         _game = App.Context.Games
-            .Include(g => g.Map).ThenInclude(m => m.Territories)
+            .Include(g => g.Map).ThenInclude(m => m!.Territories)
                 .ThenInclude(t => t.Detachment).ThenInclude(d => d!.Player)
-            .Include(g => g.Map).ThenInclude(m => m.Territories)
+            .Include(g => g.Map).ThenInclude(m => m!.Territories)
                 .ThenInclude(t => t.Installation)
             .Include(g => g.Players).ThenInclude(p => p.Detachments)
                 .ThenInclude(d => d.Territory)

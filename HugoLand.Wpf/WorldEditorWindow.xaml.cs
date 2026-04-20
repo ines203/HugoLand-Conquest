@@ -10,9 +10,9 @@ namespace HugoLandWpf;
 public partial class WorldEditorWindow : Window
 {
     private WorldTemplate? _currentWorld;
-    private TerrainType _selectedTerrain = TerrainType.Plaine;
-    private bool _isSettingStart = false;
-    private int _startPlayerNum = 0;
+    //private TerrainType _selectedTerrain = TerrainType.Plaine;
+    //private bool _isSettingStart = false;
+    //private int _startPlayerNum = 0;
     private bool _isDragging = false;
 
     private const int CELL_SIZE = 36;

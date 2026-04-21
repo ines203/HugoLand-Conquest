@@ -21,7 +21,7 @@ public partial class SelectWorldWindow : Window
     {
         if (LstMondes.SelectedIndex < 0)
         {
-            MessageBox.Show("Veuillez sélectionner un monde.", "Sélection requise",
+            MessageBox.Show("Please select a world.", "Selection needed",
                 MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }

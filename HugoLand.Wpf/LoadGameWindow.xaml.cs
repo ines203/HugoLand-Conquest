@@ -23,14 +23,14 @@ public partial class LoadGameWindow : Window
             .ToList();
 
         LstParties.ItemsSource = _games.Select(g =>
-            $"{g.Name}  — Tour {g.TurnNumber}, {(g.Status == GameStatus.InProgress ? "En cours" : "Terminée")}").ToList();
+            $"{g.Name}  — Turn {g.TurnNumber}, {(g.Status == GameStatus.InProgress ? "In progress" : "Finished")}").ToList();
     }
 
     private void BtnCharger_Click(object sender, RoutedEventArgs e)
     {
         if (LstParties.SelectedIndex < 0)
         {
-            MessageBox.Show("Veuillez sélectionner une partie.", "Sélection requise",
+            MessageBox.Show("Please select a game.", "Selection needed",
                 MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }

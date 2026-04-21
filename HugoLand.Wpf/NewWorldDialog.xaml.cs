@@ -18,13 +18,13 @@ public partial class NewWorldDialog : Window
     {
         if (string.IsNullOrWhiteSpace(TxtNom.Text))
         {
-            MessageBox.Show("Le nom est obligatoire.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show("The name is obligatory.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
         if (!int.TryParse(TxtLargeur.Text, out int w) || w < 10 || w > 50 ||
             !int.TryParse(TxtHauteur.Text, out int h) || h < 10 || h > 50)
         {
-            MessageBox.Show("Les dimensions doivent être entre 10 et 50.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show("The dimensions must be between 10 and 50.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 

@@ -62,7 +62,7 @@ public partial class WorldEditorWindow : Window
     {
         TxtNom.Text = world.Name;
         TxtDescription.Text = world.Description;
-        TxtTitreMonde.Text = $"{world.Name} — {world.Width}×{world.Height}{(world.IsValid ? "  ✔ Validé" : "")}";
+        TxtTitreMonde.Text = $"{world.Name} — {world.Width}×{world.Height}{(world.IsValid ? "  ✔ Validated" : "")}";
 
         MettreAJourPositionsDépart();
         DessinerGrille(world);
@@ -145,8 +145,8 @@ public partial class WorldEditorWindow : Window
             CanvasGrille.Children.Add(txt);
         }
 
-        AjouterMarqueur(world.StartX1, world.StartY1, Color.FromRgb(33, 150, 243), "J1");
-        AjouterMarqueur(world.StartX2, world.StartY2, Color.FromRgb(244, 67, 54),  "J2");
+        AjouterMarqueur(world.StartX1, world.StartY1, Color.FromRgb(33, 150, 243), "P1");
+        AjouterMarqueur(world.StartX2, world.StartY2, Color.FromRgb(244, 67, 54),  "P2");
     }
 
     private void Cell_MouseDown(object sender, MouseButtonEventArgs e)
@@ -175,7 +175,7 @@ public partial class WorldEditorWindow : Window
         if (RbDepart1.IsChecked == true)
         {
             try { App.WorldService.SetStartPosition(_currentWorld.Id, 1, tt.X, tt.Y); }
-            catch (Exception ex) { MessageBox.Show(ex.Message, "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
+            catch (Exception ex) { MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
             _currentWorld = App.WorldService.GetWorld(_currentWorld.Id)!;
             DessinerMarqueurDepart(_currentWorld);
             MettreAJourPositionsDépart();
@@ -184,7 +184,7 @@ public partial class WorldEditorWindow : Window
         if (RbDepart2.IsChecked == true)
         {
             try { App.WorldService.SetStartPosition(_currentWorld.Id, 2, tt.X, tt.Y); }
-            catch (Exception ex) { MessageBox.Show(ex.Message, "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
+            catch (Exception ex) { MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
             _currentWorld = App.WorldService.GetWorld(_currentWorld.Id)!;
             DessinerMarqueurDepart(_currentWorld);
             MettreAJourPositionsDépart();
@@ -214,11 +214,11 @@ public partial class WorldEditorWindow : Window
     {
         if (_currentWorld == null) return;
         TxtDepart1.Text = _currentWorld.StartX1.HasValue
-            ? $"J1 : ({_currentWorld.StartX1}, {_currentWorld.StartY1})"
-            : "J1 : non défini";
+            ? $"P1 : ({_currentWorld.StartX1}, {_currentWorld.StartY1})"
+            : "P1 : not defined";
         TxtDepart2.Text = _currentWorld.StartX2.HasValue
-            ? $"J2 : ({_currentWorld.StartX2}, {_currentWorld.StartY2})"
-            : "J2 : non défini";
+            ? $"P2 : ({_currentWorld.StartX2}, {_currentWorld.StartY2})"
+            : "P2 : not defined";
     }
 
     private void MettreAJourDistribution()
@@ -232,8 +232,8 @@ public partial class WorldEditorWindow : Window
         double accessible = total > 0 ? (double)(total - mer) / total * 100 : 0;
 
         TxtDistribution.Text =
-            $"Plaine : {plaine}  Forêt : {foret}\n" +
-            $"Montagne : {montagne}  Mer : {mer}\n" +
+            $"Plain : {plaine}  Forest : {foret}\n" +
+            $"Mountain : {montagne}  Sea : {mer}\n" +
             $"Accessible : {accessible:F0}% (min 60%)";
     }
 
@@ -253,7 +253,7 @@ public partial class WorldEditorWindow : Window
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
     }
@@ -264,16 +264,16 @@ public partial class WorldEditorWindow : Window
         var errors = App.WorldService.ValidateWorld(_currentWorld.Id);
         if (errors.Count == 0)
         {
-            MessageBox.Show("✔ Monde valide ! Il peut maintenant être utilisé pour des parties.",
-                "Validation réussie", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("✔ Valid world ! It can now be used for games.",
+                "Validation successful", MessageBoxButton.OK, MessageBoxImage.Information);
             _currentWorld = App.WorldService.GetWorld(_currentWorld.Id)!;
-            TxtTitreMonde.Text = $"{_currentWorld.Name} — {_currentWorld.Width}×{_currentWorld.Height}  ✔ Validé";
+            TxtTitreMonde.Text = $"{_currentWorld.Name} — {_currentWorld.Width}×{_currentWorld.Height}  ✔ Validated";
             ChargerListeMondes();
         }
         else
         {
-            MessageBox.Show("Erreurs de validation :\n\n" + string.Join("\n", errors),
-                "Validation échouée", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show("Errors of validations :\n\n" + string.Join("\n", errors),
+                "Validation failed", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 
@@ -281,8 +281,8 @@ public partial class WorldEditorWindow : Window
     {
         if (_currentWorld == null) return;
         // Le nom/description sont sauvegardés à la volée via SetTerrain — ici on confirme juste
-        MessageBox.Show("Monde sauvegardé automatiquement à chaque modification.",
-            "Sauvegarde", MessageBoxButton.OK, MessageBoxImage.Information);
+        MessageBox.Show("World saved automatically at each modification.",
+            "Save", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 
     private void Rb_Checked(object sender, RoutedEventArgs e) { }

@@ -16,7 +16,7 @@ public static class SeedWorlds
         var service = new WorldTemplateService(context);
 
         // === Monde 1 : La Grande Plaine (15x10, terrain mixte) ===
-        var w1 = service.CreateWorld("La Grande Plaine", "Vaste plaine ouverte avec quelques forêts.", 15, 10);
+        var w1 = service.CreateWorld("The Great Plain", "Vast open plains with some forests.", 15, 10);
         // Quelques forêts
         foreach (var (x, y) in new[] { (3,2),(4,2),(3,3),(4,3),(10,6),(11,6),(10,7) })
             service.SetTerrain(w1.Id, x, y, TerrainType.Foret);
@@ -26,7 +26,7 @@ public static class SeedWorlds
         service.ValidateWorld(w1.Id);
 
         // === Monde 2 : L'Archipel des Batailles (15x10, beaucoup de mer) ===
-        var w2 = service.CreateWorld("L'Archipel des Batailles", "Îles séparées par la mer, combats tactiques.", 15, 10);
+        var w2 = service.CreateWorld("The Archipelago of Battles", "Islands separated by the sea, tactical combat", 15, 10);
         // Mer sur les bords et couloirs
         for (int x = 0; x < 15; x++)
         {
@@ -46,7 +46,7 @@ public static class SeedWorlds
         service.ValidateWorld(w2.Id);
 
         // === Monde 3 : Les Monts du Destin (15x10, terrain montagneux) ===
-        var w3 = service.CreateWorld("Les Monts du Destin", "Chaîne de montagnes centrale difficile à traverser.", 15, 10);
+        var w3 = service.CreateWorld("The Mounts of Destiny", "Central mountain chain hard to traverse", 15, 10);
         // Chaîne de montagnes centrale
         for (int y = 0; y < 10; y++)
         {

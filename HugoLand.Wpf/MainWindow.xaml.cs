@@ -17,8 +17,8 @@ public partial class MainWindow : Window
         if (!worlds.Any())
         {
             MessageBox.Show(
-                "Aucun monde validé disponible.\nCréez et validez un monde dans l'éditeur d'abord.",
-                "Aucun monde disponible",
+                "No valid world available.\nCreate and validate a world in the editor first",
+                "No world available",
                 MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }

@@ -12,15 +12,15 @@ public partial class ScinderDialog : Window
     {
         InitializeComponent();
         _force = force;
-        TxtForce.Text = $"Force actuelle : {force}";
+        TxtForce.Text = $"Current force : {force}";
     }
 
     private void BtnScinder_Click(object sender, RoutedEventArgs e)
     {
         if (!int.TryParse(TxtMontant.Text, out int n) || n < 10)
-        { MessageBox.Show("Minimum 10 soldats.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
+        { MessageBox.Show("Minimum 10 soldier.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
         if (n >= _force)
-        { MessageBox.Show("Il doit rester au moins 1 soldat.", "Erreur", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
+        { MessageBox.Show("There must be at least 1 soldier left.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning); return; }
 
         Montant = n;
         Direction = RbN.IsChecked == true ? 0

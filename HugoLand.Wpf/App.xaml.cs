@@ -24,7 +24,7 @@ public partial class App : Application
             .Options;
 
         Context = new HugoLandContext(options);
-        Context.Database.Migrate(); // applique les migrations automatiquement
+        Context.Database.Migrate();
 
         // Services
         InstallationService = new InstallationService(Context);
@@ -36,5 +36,9 @@ public partial class App : Application
 
         // Seed les 3 mondes requis si pas encore créés
         SeedWorlds.EnsureWorlds(Context);
+
+        // Musique menu au démarrage
+        MusicManager.Volume = 0.4;
+        MusicManager.PlayMenu();
     }
 }

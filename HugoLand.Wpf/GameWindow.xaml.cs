@@ -70,14 +70,15 @@ public partial class GameWindow : Window
         ChargerPartie();
         DessinerPlateau();
         MettreAJourPanneau();
+        MusicManager.PlayGame();
     }
 
     private void ChargerPartie()
     {
         _game = App.Context.Games
-            .Include(g => g.Map).ThenInclude(m => m!.Territories)
+            .Include(g => g.Map).ThenInclude(m => m.Territories)
                 .ThenInclude(t => t.Detachment).ThenInclude(d => d!.Player)
-            .Include(g => g.Map).ThenInclude(m => m!.Territories)
+            .Include(g => g.Map).ThenInclude(m => m.Territories)
                 .ThenInclude(t => t.Installation)
             .Include(g => g.Players).ThenInclude(p => p.Detachments)
                 .ThenInclude(d => d.Territory)
@@ -265,6 +266,10 @@ public partial class GameWindow : Window
             };
             if (dir >= 0)
             {
+                bool hasEnemy = _game.Players
+                    .Where(p => p.Id != _currentPlayer.Id)
+                    .Any(p => p.Detachments.Any(d => d.TerritoryId == t.Id));
+                if (hasEnemy) MusicManager.PlayBattle();
                 App.ArmyService.TryMove(_selectedArmy.Id, dir);
                 SoundManager.PlayMove();
                 FlashCell(t.X * CELL, t.Y * CELL, Color.FromRgb(59, 130, 246));
@@ -273,6 +278,7 @@ public partial class GameWindow : Window
 
             _movingMode = false;
             _selectedArmy = null;
+            MusicManager.PlayGame();
             Rafraichir();
             return;
         }
@@ -498,7 +504,10 @@ public partial class GameWindow : Window
     }
 
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        => App.Context.SaveChanges();
+    {
+        App.Context.SaveChanges();
+        MusicManager.Stop();
+    }
 
     private void BtnQuit_Click(object sender, RoutedEventArgs e)
     {

@@ -1,4 +1,4 @@
-﻿using HugoLandCore.Data;
+using HugoLandCore.Data;
 using HugoLandCore.Models;
 
 namespace HugoLandCore.Services;
@@ -34,6 +34,15 @@ public class InstallationService
         };
 
         detachment.Actionable = false;
+
+        // Historique
+        _context.PlayerActions.Add(new HugoLandCore.Models.PlayerAction
+        {
+            Description = $"Build camp at ({detachment.Territory.X},{detachment.Territory.Y}) - cost 20 gold",
+            Timestamp = DateTime.Now,
+            PlayerId = detachment.Player.Id
+        });
+
         _context.SaveChanges();
     }
 
@@ -46,9 +55,18 @@ public class InstallationService
         if (detachment.Player.Gold < 50)
             return; // message erreur "pas assez d'or (50 requis)"
 
-        detachment.Player.Gold -= 50; // déduire le coût
+        detachment.Player.Gold -= 50;
         detachment.Territory.Installation.Type = InstallationType.Fortification;
         detachment.Actionable = false;
+
+        // Historique
+        _context.PlayerActions.Add(new HugoLandCore.Models.PlayerAction
+        {
+            Description = $"Upgrade to fortification at ({detachment.Territory.X},{detachment.Territory.Y}) - cost 50 gold",
+            Timestamp = DateTime.Now,
+            PlayerId = detachment.Player.Id
+        });
+
         _context.SaveChanges();
     }
 

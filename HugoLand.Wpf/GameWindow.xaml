@@ -12,12 +12,12 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- ══════════════════ PANNEAU GAUCHE ══════════════════ -->
+        <!-- ══ PANNEAU GAUCHE ══ -->
         <Border Grid.Column="0" Background="#0D1018"
                 BorderBrush="#1E293B" BorderThickness="0,0,1,0">
             <DockPanel>
 
-                <!-- Bandeau joueur -->
+                <!-- Bandeau joueur — data-binding -->
                 <Border x:Name="BrdJoueur" DockPanel.Dock="Top" Padding="14,12">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -26,21 +26,21 @@
                         </LinearGradientBrush>
                     </Border.Background>
                     <StackPanel>
-                        <TextBlock x:Name="TxtJoueur" Text="Player 1 — Turn 1"
+                        <TextBlock Text="{Binding TurnHeader}"
                                    FontSize="14" FontWeight="Bold"
                                    Foreground="White" FontFamily="Segoe UI"/>
                         <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                             <TextBlock Text="⬡ " Foreground="#F59E0B" FontSize="15"/>
-                            <TextBlock x:Name="TxtOr" Text="50 gold"
+                            <TextBlock Text="{Binding GoldText}"
                                        Foreground="#FCD34D" FontSize="13" FontWeight="SemiBold"/>
                         </StackPanel>
-                        <TextBlock x:Name="TxtDette" Text=""
-                                   Foreground="#FCA5A5" FontSize="11"
-                                   Margin="0,3,0,0" Visibility="Collapsed"/>
+                        <TextBlock Text="{Binding DebtText}"
+                                   Foreground="#FCA5A5" FontSize="11" Margin="0,3,0,0"
+                                   Visibility="{Binding HasDebt, Converter={StaticResource BoolToVis}}"/>
                     </StackPanel>
                 </Border>
 
-                <!-- Stats -->
+                <!-- Stats — data-binding -->
                 <Border DockPanel.Dock="Top" Padding="14,8"
                         Background="#111520" BorderBrush="#1E293B" BorderThickness="0,0,0,1">
                     <Grid>
@@ -48,19 +48,19 @@
                         <Grid.RowDefinitions>
                             <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
                         </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="ARMIES"   Style="{StaticResource SectionLabel}"/>
-                        <TextBlock Grid.Row="0" Grid.Column="1" Text="FORCE"    Style="{StaticResource SectionLabel}"/>
-                        <TextBlock x:Name="TxtArmees" Grid.Row="1" Grid.Column="0" Text="1"
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="ARMIES"    Style="{StaticResource SectionLabel}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="FORCE"     Style="{StaticResource SectionLabel}"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding ArmyCount}"
                                    FontSize="20" FontWeight="Bold" Foreground="White" FontFamily="Consolas"/>
-                        <TextBlock x:Name="TxtForce"  Grid.Row="1" Grid.Column="1" Text="30"
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TotalForce}"
                                    FontSize="20" FontWeight="Bold" Foreground="White" FontFamily="Consolas"/>
                         <TextBlock Grid.Row="2" Grid.Column="0" Text="FORTRESSES" Style="{StaticResource SectionLabel}"/>
                         <TextBlock Grid.Row="2" Grid.Column="1" Text="ECONOMY"   Style="{StaticResource SectionLabel}"/>
-                        <TextBlock x:Name="TxtFortifs" Grid.Row="3" Grid.Column="0" Text="1"
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="{Binding FortressCount}"
                                    FontSize="16" FontWeight="Bold" Foreground="#F59E0B" FontFamily="Consolas"/>
                         <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">
-                            <TextBlock x:Name="TxtRevenus"   Text="+5"  FontSize="12" Foreground="#10B981" FontWeight="Bold" FontFamily="Consolas"/>
-                            <TextBlock x:Name="TxtEntretien" Text="/-3" FontSize="12" Foreground="#EF4444" FontWeight="Bold" FontFamily="Consolas"/>
+                            <TextBlock Text="{Binding EarningsText}"    FontSize="12" Foreground="#10B981" FontWeight="Bold" FontFamily="Consolas"/>
+                            <TextBlock Text="{Binding MaintenanceText}" FontSize="12" Foreground="#EF4444" FontWeight="Bold" FontFamily="Consolas"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -70,52 +70,40 @@
                         Background="#0D1018" BorderBrush="#1E293B" BorderThickness="0,0,0,1">
                     <StackPanel>
                         <TextBlock Text="SELECTED ARMY" Style="{StaticResource SectionLabel}"/>
-                        <TextBlock x:Name="TxtArmeeSelectionnee"
-                                   Text="Click on one of your armies"
+                        <TextBlock Text="{Binding SelectedArmyInfo}"
                                    Foreground="#64748B" FontSize="11"
                                    FontFamily="Consolas" TextWrapping="Wrap" Margin="0,0,0,8"/>
 
-                        <!-- Bouton Move - Bleu -->
-                        <Button x:Name="BtnDeplacer" Content="[ 1 ]  Move"
+                        <Button x:Name="BtnDeplacer"  Content="[ 1 ]  Move"
                                 Style="{StaticResource ActionBtn}"
-                                Background="#1E3A5F" BorderBrush="#3B82F6"
-                                Foreground="#93C5FD"
-                                Click="BtnDeplacer_Click" IsEnabled="False"/>
-
-                        <!-- Bouton Build Camp - Violet -->
-                        <Button x:Name="BtnCamp" Content="[ 2 ]  Build Camp  (20g)"
+                                Background="#1E3A5F" BorderBrush="#3B82F6" Foreground="#93C5FD"
+                                IsEnabled="{Binding CanMove}"
+                                Click="BtnDeplacer_Click"/>
+                        <Button x:Name="BtnCamp"      Content="[ 2 ]  Build Camp  (20g)"
                                 Style="{StaticResource ActionBtn}"
-                                Background="#2E1B4E" BorderBrush="#7C3AED"
-                                Foreground="#C4B5FD"
-                                Click="BtnCamp_Click" IsEnabled="False"/>
-
-                        <!-- Bouton Fortify - Or -->
-                        <Button x:Name="BtnFort" Content="[ 3 ]  Fortify  (50g)"
+                                Background="#2E1B4E" BorderBrush="#7C3AED" Foreground="#C4B5FD"
+                                IsEnabled="{Binding CanBuildCamp}"
+                                Click="BtnCamp_Click"/>
+                        <Button x:Name="BtnFort"      Content="[ 3 ]  Fortify  (50g)"
                                 Style="{StaticResource ActionBtn}"
-                                Background="#3B2A00" BorderBrush="#F59E0B"
-                                Foreground="#FCD34D"
-                                Click="BtnFort_Click" IsEnabled="False"/>
-
-                        <!-- Bouton Reinforce - Vert -->
+                                Background="#3B2A00" BorderBrush="#F59E0B" Foreground="#FCD34D"
+                                IsEnabled="{Binding CanFortify}"
+                                Click="BtnFort_Click"/>
                         <Button x:Name="BtnRenforcer" Content="[ 4 ]  Reinforce  (2g/troop)"
                                 Style="{StaticResource ActionBtn}"
-                                Background="#0D2E1E" BorderBrush="#10B981"
-                                Foreground="#6EE7B7"
-                                Click="BtnRenforcer_Click" IsEnabled="False"/>
-
-                        <!-- Bouton Split - Orange -->
-                        <Button x:Name="BtnScinder" Content="[ 5 ]  Split Army"
+                                Background="#0D2E1E" BorderBrush="#10B981" Foreground="#6EE7B7"
+                                IsEnabled="{Binding CanReinforce}"
+                                Click="BtnRenforcer_Click"/>
+                        <Button x:Name="BtnScinder"   Content="[ 5 ]  Split Army"
                                 Style="{StaticResource ActionBtn}"
-                                Background="#3B1A00" BorderBrush="#F97316"
-                                Foreground="#FDBA74"
-                                Click="BtnScinder_Click" IsEnabled="False"/>
-
-                        <!-- Bouton Pass - Gris -->
-                        <Button x:Name="BtnPasser" Content="[ 6 ]  Pass"
+                                Background="#3B1A00" BorderBrush="#F97316" Foreground="#FDBA74"
+                                IsEnabled="{Binding CanSplit}"
+                                Click="BtnScinder_Click"/>
+                        <Button x:Name="BtnPasser"    Content="[ 6 ]  Pass"
                                 Style="{StaticResource ActionBtn}"
-                                Background="#1A1A2A" BorderBrush="#334155"
-                                Foreground="#64748B"
-                                Click="BtnPasser_Click" IsEnabled="False"/>
+                                Background="#1A1A2A" BorderBrush="#334155" Foreground="#64748B"
+                                IsEnabled="{Binding CanPass}"
+                                Click="BtnPasser_Click"/>
                     </StackPanel>
                 </Border>
 
@@ -124,14 +112,14 @@
                     <StackPanel>
                         <TextBlock Text="COMBAT LOG" Style="{StaticResource SectionLabel}"/>
                         <ScrollViewer Height="110" VerticalScrollBarVisibility="Auto">
-                            <TextBlock x:Name="TxtJournal"
+                            <TextBlock Text="{Binding CombatLog}"
                                        Foreground="#475569" FontSize="10"
                                        FontFamily="Consolas" TextWrapping="Wrap" LineHeight="16"/>
                         </ScrollViewer>
                     </StackPanel>
                 </Border>
 
-                <!-- Boutons bas : Quit + End Turn -->
+                <!-- Boutons bas -->
                 <StackPanel DockPanel.Dock="Bottom" Margin="10,6">
                     <Button Content="QUIT GAME"
                             Background="#1A0A0A" Foreground="#EF4444"
@@ -155,7 +143,6 @@
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
-
                     <Button Content="END TURN  →"
                             Background="#059669" Foreground="White"
                             BorderThickness="0" FontSize="13" FontWeight="Bold"
@@ -171,9 +158,6 @@
                                     <Trigger Property="IsMouseOver" Value="True">
                                         <Setter TargetName="bd" Property="Background" Value="#10B981"/>
                                     </Trigger>
-                                    <Trigger Property="IsPressed" Value="True">
-                                        <Setter TargetName="bd" Property="Background" Value="#047857"/>
-                                    </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Button.Template>
@@ -183,36 +167,34 @@
             </DockPanel>
         </Border>
 
-        <!-- ══════════════════ ZONE DE JEU ══════════════════ -->
+        <!-- ══ ZONE DE JEU ══ -->
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- Barre titre -->
             <Border Grid.Row="0" Background="#0D1018"
                     BorderBrush="#1E293B" BorderThickness="0,0,0,1" Padding="14,0">
                 <DockPanel>
-                    <TextBlock x:Name="TxtTitre" Text="Battle Map"
+                    <TextBlock Text="{Binding MapTitle}"
                                Foreground="#94A3B8" FontSize="12"
                                FontFamily="Consolas" FontWeight="Bold"
                                VerticalAlignment="Center"/>
                     <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"
                                 VerticalAlignment="Center" HorizontalAlignment="Right">
                         <Border Width="12" Height="12" Background="#4A7C59" CornerRadius="2" Margin="4,0,2,0"/>
-                        <TextBlock Text="Plain" Foreground="#64748B" FontSize="10" FontFamily="Consolas" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="Plain"    Foreground="#64748B" FontSize="10" FontFamily="Consolas" VerticalAlignment="Center" Margin="0,0,8,0"/>
                         <Border Width="12" Height="12" Background="#2D5016" CornerRadius="2" Margin="4,0,2,0"/>
-                        <TextBlock Text="Forest" Foreground="#64748B" FontSize="10" FontFamily="Consolas" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="Forest"   Foreground="#64748B" FontSize="10" FontFamily="Consolas" VerticalAlignment="Center" Margin="0,0,8,0"/>
                         <Border Width="12" Height="12" Background="#8B7355" CornerRadius="2" Margin="4,0,2,0"/>
                         <TextBlock Text="Mountain" Foreground="#64748B" FontSize="10" FontFamily="Consolas" VerticalAlignment="Center" Margin="0,0,8,0"/>
                         <Border Width="12" Height="12" Background="#1E6091" CornerRadius="2" Margin="4,0,2,0"/>
-                        <TextBlock Text="Sea" Foreground="#64748B" FontSize="10" FontFamily="Consolas" VerticalAlignment="Center"/>
+                        <TextBlock Text="Sea"      Foreground="#64748B" FontSize="10" FontFamily="Consolas" VerticalAlignment="Center"/>
                     </StackPanel>
                 </DockPanel>
             </Border>
 
-            <!-- Canvas carte — padding minimal -->
             <ScrollViewer Grid.Row="1"
                           HorizontalScrollBarVisibility="Auto"
                           VerticalScrollBarVisibility="Auto"

@@ -18,6 +18,7 @@ public partial class GameWindow : Window
     private MilitaryDetachment? _selectedArmy;
     private bool _movingMode = false;
     private int _gameId;
+    private readonly GameViewModel _vm = new();
 
     private const int CELL = 64;
     private const int RADIUS = 16;
@@ -67,17 +68,19 @@ public partial class GameWindow : Window
     {
         InitializeComponent();
         _gameId = gameId;
+        DataContext = _vm;
         ChargerPartie();
         DessinerPlateau();
         MettreAJourPanneau();
+        MusicManager.PlayGame();
     }
 
     private void ChargerPartie()
     {
         _game = App.Context.Games
-            .Include(g => g.Map).ThenInclude(m => m!.Territories)
+            .Include(g => g.Map).ThenInclude(m => m.Territories)
                 .ThenInclude(t => t.Detachment).ThenInclude(d => d!.Player)
-            .Include(g => g.Map).ThenInclude(m => m!.Territories)
+            .Include(g => g.Map).ThenInclude(m => m.Territories)
                 .ThenInclude(t => t.Installation)
             .Include(g => g.Players).ThenInclude(p => p.Detachments)
                 .ThenInclude(d => d.Territory)
@@ -265,6 +268,10 @@ public partial class GameWindow : Window
             };
             if (dir >= 0)
             {
+                bool hasEnemy = _game.Players
+                    .Where(p => p.Id != _currentPlayer.Id)
+                    .Any(p => p.Detachments.Any(d => d.TerritoryId == t.Id));
+                if (hasEnemy) MusicManager.PlayBattle();
                 App.ArmyService.TryMove(_selectedArmy.Id, dir);
                 SoundManager.PlayMove();
                 FlashCell(t.X * CELL, t.Y * CELL, Color.FromRgb(59, 130, 246));
@@ -273,6 +280,7 @@ public partial class GameWindow : Window
 
             _movingMode = false;
             _selectedArmy = null;
+            MusicManager.PlayGame();
             Rafraichir();
             return;
         }
@@ -290,70 +298,14 @@ public partial class GameWindow : Window
 
     private void MettreAJourPanneau()
     {
+        // Mise à jour via ViewModel (data-binding)
+        _vm.UpdateFromGame(_game, _currentPlayer);
+        _vm.UpdateSelectedArmy(_selectedArmy, _currentPlayer);
+
+        // Couleur bandeau joueur (non bindable simplement)
         bool isP1 = _currentPlayer.Id == _game.Players.Min(p => p.Id);
-
-        // Bandeau couleur joueur
-        var brush = BrdJoueur.Background as LinearGradientBrush;
-        if (brush != null)
-        {
-            GradStop1.Color = isP1
-                ? Color.FromRgb(29, 78, 216)
-                : Color.FromRgb(153, 27, 27);
-            GradStop2.Color = isP1
-                ? Color.FromRgb(13, 42, 112)
-                : Color.FromRgb(80, 10, 10);
-        }
-
-        TxtJoueur.Text = $"{_currentPlayer.Name}  —  Turn {_game.TurnNumber}";
-        TxtOr.Text = $"{_currentPlayer.Gold} gold";
-
-        if (_currentPlayer.DebtTurns > 0)
-        {
-            TxtDette.Text = $"⚠ Debt: {_currentPlayer.DebtTurns}/5 turns";
-            TxtDette.Visibility = Visibility.Visible;
-        }
-        else TxtDette.Visibility = Visibility.Collapsed;
-
-        int nbArmees = _currentPlayer.Detachments.Count(d => d.Force >= 10);
-        int force    = _currentPlayer.Detachments.Sum(d => d.Force);
-        int nbForts  = _currentPlayer.Installations.Count(i => i.Type == InstallationType.Fortification);
-        int revenus  = nbForts * 5;
-        int entretien = _currentPlayer.Detachments
-            .Where(d => d.Force >= 10)
-            .Sum(d => (int)Math.Ceiling(d.Force / 10.0));
-
-        TxtArmees.Text   = nbArmees.ToString();
-        TxtForce.Text    = force.ToString();
-        TxtFortifs.Text  = nbForts.ToString();
-        TxtRevenus.Text  = $"+{revenus}";
-        TxtEntretien.Text = $" / -{entretien}";
-
-        TxtTitre.Text = $"Battle Map  {_game.Map!.Width}×{_game.Map.Height}  |  Turn {_game.TurnNumber}  |  {_currentPlayer.Name}'s turn";
-
-        // Armée sélectionnée
-        if (_selectedArmy?.Territory != null)
-        {
-            bool hasInst = _selectedArmy.Territory.Installation != null;
-            bool isCamp  = _selectedArmy.Territory.Installation?.Type == InstallationType.Camp;
-
-            TxtArmeeSelectionnee.Text =
-                $"({_selectedArmy.Territory.X},{_selectedArmy.Territory.Y})  {_selectedArmy.Force} troops\n" +
-                $"Energy: {_selectedArmy.Energy}/5  |  {_selectedArmy.Territory.Terrain}" +
-                (hasInst ? $"\n{_selectedArmy.Territory.Installation!.Type}" : "");
-
-            BtnDeplacer.IsEnabled  = _selectedArmy.Energy > 0;
-            BtnCamp.IsEnabled      = !hasInst && _currentPlayer.Gold >= 20;
-            BtnFort.IsEnabled      = isCamp && _currentPlayer.Gold >= 50;
-            BtnRenforcer.IsEnabled = hasInst && _currentPlayer.Gold >= 2;
-            BtnScinder.IsEnabled   = _selectedArmy.Force >= 11;
-            BtnPasser.IsEnabled    = true;
-        }
-        else
-        {
-            TxtArmeeSelectionnee.Text = "Click on one of your armies";
-            BtnDeplacer.IsEnabled = BtnCamp.IsEnabled = BtnFort.IsEnabled =
-            BtnRenforcer.IsEnabled = BtnScinder.IsEnabled = BtnPasser.IsEnabled = false;
-        }
+        GradStop1.Color = isP1 ? Color.FromRgb(29, 78, 216)  : Color.FromRgb(153, 27, 27);
+        GradStop2.Color = isP1 ? Color.FromRgb(13, 42, 112)  : Color.FromRgb(80, 10, 10);
     }
 
     private void BtnDeplacer_Click(object sender, RoutedEventArgs e)
@@ -412,6 +364,15 @@ public partial class GameWindow : Window
     {
         if (_selectedArmy == null) return;
         _selectedArmy.Actionable = false;
+
+        // Historique
+        App.Context.PlayerActions.Add(new HugoLandCore.Models.PlayerAction
+        {
+            Description = $"Pass action for army at ({_selectedArmy.Territory?.X},{_selectedArmy.Territory?.Y})",
+            Timestamp = DateTime.Now,
+            PlayerId = _currentPlayer.Id
+        });
+
         App.Context.SaveChanges();
         AjouterJournal("Army passed.");
         _selectedArmy = null;
@@ -492,13 +453,14 @@ public partial class GameWindow : Window
 
     private void AjouterJournal(string msg)
     {
-        TxtJournal.Text = $"› {msg}\n{TxtJournal.Text}";
-        if (TxtJournal.Text.Length > 800)
-            TxtJournal.Text = TxtJournal.Text[..800];
+        _vm.AddLog(msg);
     }
 
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        => App.Context.SaveChanges();
+    {
+        App.Context.SaveChanges();
+        MusicManager.Stop();
+    }
 
     private void BtnQuit_Click(object sender, RoutedEventArgs e)
     {

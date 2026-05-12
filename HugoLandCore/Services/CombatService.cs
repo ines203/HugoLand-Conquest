@@ -1,4 +1,4 @@
-﻿using HugoLandCore.Data;
+using HugoLandCore.Data;
 using HugoLandCore.Models;
 using HugoLandCore.Services;
 
@@ -17,182 +17,177 @@ public class CombatService
         installationService = insta;
     }
 
-    public void SetArmyService(ArmyService armySvc)
-    {
-        armyService = armySvc;
-    }
+    public void SetArmyService(ArmyService armySvc) => armyService = armySvc;
 
-    /// <summary>
-    /// Résout un combat entre l'attaquant et le défenseur.
-    /// Applique les pertes, le pillage, et gère la retraite.
-    /// </summary>
-    public void ResolveCombat(MilitaryDetachment army_self, MilitaryDetachment army_enemy, int direction)
+    // Appelé depuis TryMove avec old_territory_id connu
+    public void ResolveCombat(MilitaryDetachment attacker, MilitaryDetachment defender,
+                              int direction, int attackerCameFromId)
     {
-        // Forces avant combat (pour le calcul des pertes et du pillage)
-        int attForceAvant = army_self.Force;
-        int defForceAvant = army_enemy.Force;
+        int attForce = attacker.Force;
+        int defForce = defender.Force;
+        int defTerritoryId = defender.TerritoryId!.Value;
 
-        // Facteurs aléatoires : attaquant 0.8-1.2, défenseur 0.9-1.3
+        // Facteurs aléatoires
         float factorAtt = _rnd.Next(8, 13) / 10f;
         float factorDef = _rnd.Next(9, 14) / 10f;
+        float effAtt = attForce * factorAtt;
+        float effDef = defForce * factorDef * defender.Territory!.TerrainBonus;
+        if (defender.Territory.Installation != null)
+            effDef *= defender.Territory.Installation.InstallationBonus;
 
-        float eff_force_self = attForceAvant * factorAtt;
-        float eff_force_enemy = defForceAvant * factorDef
-            * army_enemy.Territory!.TerrainBonus;
+        bool attackerWins = effAtt > effDef;
 
-        if (army_enemy.Territory.Installation != null)
-            eff_force_enemy *= army_enemy.Territory.Installation.InstallationBonus;
-
-        bool attackerWins = eff_force_self > eff_force_enemy;
-
-        // Pertes calculées sur la force AVANT combat (règle du TP)
+        // Pertes
         if (attackerWins)
         {
-            army_self.Force -= (int)Math.Floor(attForceAvant * 0.20);
-            army_enemy.Force -= (int)Math.Floor(defForceAvant * 0.60);
+            attacker.Force -= (int)Math.Floor(attForce * 0.20);
+            defender.Force -= (int)Math.Floor(defForce * 0.60);
+            attacker.Player!.Gold += (defForce / 10) * 5;
         }
         else
         {
-            army_self.Force -= (int)Math.Floor(attForceAvant * 0.60);
-            army_enemy.Force -= (int)Math.Floor(defForceAvant * 0.20);
+            attacker.Force -= (int)Math.Floor(attForce * 0.60);
+            defender.Force -= (int)Math.Floor(defForce * 0.20);
+            defender.Player!.Gold += (attForce / 10) * 5;
         }
 
-        // Épuisement post-combat
-        army_self.Energy = 0;
-        army_enemy.Energy = 0;
+        attacker.Energy = 0;
+        defender.Energy = 0;
 
-        // Pillage : 5 or par tranche de 10 soldats (force avant combat du perdant)
+        // Enregistrer le combat
+        _context.CombatEvents.Add(new HugoLandCore.Models.CombatEvent
+        {
+            AttackerPlayerId = attacker.PlayerId,
+            DefenderPlayerId = defender.PlayerId,
+            TerritoryId = defTerritoryId,
+            GameId = attacker.Player!.GameId,
+            Timestamp = DateTime.Now,
+            Result = attackerWins
+                ? $"Attacker wins. Att:{attForce}->{attacker.Force} Def:{defForce}->{defender.Force}"
+                : $"Defender wins. Att:{attForce}->{attacker.Force} Def:{defForce}->{defender.Force}"
+        });
+
         if (attackerWins)
         {
-            int pillageTranches = defForceAvant / 10;
-            army_self.Player!.Gold += pillageTranches * 5;
-
-            TryRetreat(army_self, army_enemy, attackerWins, direction);
+            // Attaquant gagne — il reste sur la case
+            // Défenseur doit reculer DEPUIS defTerritoryId
+            if (defender.Force < 10)
+            {
+                // Dissolution du défenseur
+                var defTer = _context.Territories.Find(defTerritoryId);
+                if (defTer != null) defTer.Detachment = null;
+                defender.TerritoryId = null;
+                defender.Territory = null;
+                _context.Detachments.Remove(defender);
+            }
+            else
+            {
+                // Retraite du défenseur vers une case adjacente libre
+                RetreatFrom(defender, defTerritoryId, excludeId: attackerCameFromId);
+            }
         }
         else
         {
-            int pillageTranches = attForceAvant / 10;
-            army_enemy.Player!.Gold += pillageTranches * 5;
+            // Défenseur gagne — attaquant retourne sur sa case d'origine
+            // Remettre la case du défenseur à lui
+            var defTer2 = _context.Territories.Find(defTerritoryId);
+            if (defTer2 != null) defTer2.Detachment = defender;
+            defender.Territory = defTer2;
+            defender.TerritoryId = defTerritoryId;
 
-            TryRetreat(army_enemy, army_self, attackerWins, direction);
+            if (attacker.Force < 10)
+            {
+                // Dissolution de l'attaquant
+                // Sa case actuelle (defTerritoryId) appartient au défenseur — l'attaquant n'y est plus
+                attacker.TerritoryId = null;
+                attacker.Territory = null;
+                _context.Detachments.Remove(attacker);
+            }
+            else
+            {
+                // Retour de l'attaquant sur sa case d'origine
+                var camFrom = _context.Territories.Find(attackerCameFromId);
+                if (camFrom != null)
+                {
+                    // Vider la case cible pour l'attaquant
+                    if (camFrom.Detachment != null && camFrom.Detachment.PlayerId == attacker.PlayerId)
+                    {
+                        // Allié présent — fusionner
+                        attacker.TerritoryId = attackerCameFromId;
+                        attacker.Territory = camFrom;
+                        armyService?.TryMerge(attacker);
+                    }
+                    else
+                    {
+                        camFrom.Detachment = attacker;
+                        attacker.TerritoryId = attackerCameFromId;
+                        attacker.Territory = camFrom;
+                    }
+                }
+                else
+                {
+                    // Case d'origine introuvable → dissolution
+                    attacker.TerritoryId = null;
+                    attacker.Territory = null;
+                    _context.Detachments.Remove(attacker);
+                }
+            }
         }
 
         _context.SaveChanges();
     }
 
-    private void TryRetreat(MilitaryDetachment winner, MilitaryDetachment loser, bool attackerWins, int direction)
+    // Surcharge pour TrySplit (sans old_territory_id explicite)
+    public void ResolveCombat(MilitaryDetachment attacker, MilitaryDetachment defender, int direction)
     {
-        if (armyService == null)
-            return;
-
-        if (loser.TerritoryId == null || loser.Territory == null)
-            return;
-
-        // Perdant avec < 10 soldats → dissolution
-        if (loser.Force < 10)
+        int width = attacker.Player!.Game!.Map!.Width;
+        int cameFrom = direction switch
         {
-            // Détruire le camp si présent
-            if (loser.Territory.Installation?.Type == InstallationType.Camp)
-                installationService.CheckDestructionCamp(loser.Territory.Installation);
+            0 => attacker.TerritoryId!.Value + width,
+            1 => attacker.TerritoryId!.Value - 1,
+            2 => attacker.TerritoryId!.Value - width,
+            3 => attacker.TerritoryId!.Value + 1,
+            _ => attacker.TerritoryId!.Value
+        };
+        ResolveCombat(attacker, defender, direction, cameFrom);
+    }
 
-            // Détacher du territoire avant suppression
-            if (loser.Territory != null)
-                loser.Territory.Detachment = null;
-            loser.TerritoryId = null;
+    private void RetreatFrom(MilitaryDetachment loser, int fromId, int excludeId)
+    {
+        int width = loser.Player!.Game!.Map!.Width;
+        int[] dirs = { fromId - width, fromId + 1, fromId + width, fromId - 1 };
+        dirs = dirs.OrderBy(_ => _rnd.Next()).ToArray();
 
-            _context.Detachments.Remove(loser);
-            return;
-        }
-
-        // Retraite : l'attaquant recule vers son territoire d'origine
-        // le défenseur recule vers un territoire adjacent sans ennemi
-        List<int> directions = new List<int> { 0, 1, 2, 3 };
-        directions = directions.OrderBy(x => _rnd.Next()).ToList();
+        // Libérer la case actuelle
+        var curTer = _context.Territories.Find(fromId);
+        if (curTer != null) curTer.Detachment = null;
 
         bool retreated = false;
-
-        if (attackerWins)
+        foreach (int cid in dirs)
         {
-            // Attaquant gagne → perdant (défenseur) recule vers un territoire adjacent aléatoire
-            foreach (int dir in directions)
-            {
-                int retreatTerritoryId = GetAdjacentTerritoryId(loser, dir);
-                var retreatTerritory = _context.Territories.Find(retreatTerritoryId);
+            if (cid == excludeId) continue;
+            var t = _context.Territories.Find(cid);
+            if (t == null) continue;
+            if (t.Terrain == TerrainType.Mer) continue;
+            if (t.Detachment != null && t.Detachment.PlayerId != loser.PlayerId) continue;
 
-                if (retreatTerritory == null)
-                    continue;
+            loser.Territory = t;
+            loser.TerritoryId = cid;
 
-                // Pas d'ennemi sur ce territoire
-                if (retreatTerritory.Detachment != null
-                    && retreatTerritory.Detachment.PlayerId != loser.PlayerId)
-                    continue;
+            if (t.Detachment != null && t.Detachment.PlayerId == loser.PlayerId)
+                armyService?.TryMerge(loser);
+            else
+                t.Detachment = loser;
 
-                // Déplacer le perdant
-                if (loser.Territory != null)
-                    loser.Territory.Detachment = null;
-
-                loser.Territory = retreatTerritory;
-                loser.TerritoryId = retreatTerritoryId;
-                retreatTerritory.Detachment = loser;
-
-                // Fusion si allié présent
-                armyService.TryMerge(loser);
-
-                retreated = true;
-                break;
-            }
-        }
-        else
-        {
-            // Défenseur gagne → perdant (attaquant) recule vers son territoire d'origine
-            int originalDir = direction switch
-            {
-                0 => 2,
-                1 => 3,
-                2 => 0,
-                3 => 1,
-                _ => 2
-            };
-
-            int retreatTerritoryId = GetAdjacentTerritoryId(loser, originalDir);
-            var retreatTerritory = _context.Territories.Find(retreatTerritoryId);
-
-            if (retreatTerritory != null)
-            {
-                if (loser.Territory != null)
-                    loser.Territory.Detachment = null;
-
-                loser.Territory = retreatTerritory;
-                loser.TerritoryId = retreatTerritoryId;
-                retreatTerritory.Detachment = loser;
-
-                // Fusion si allié présent
-                armyService.TryMerge(loser);
-
-                retreated = true;
-            }
+            retreated = true;
+            break;
         }
 
         if (!retreated)
         {
-            // Aucun territoire disponible → destruction
-            if (loser.Territory != null)
-                loser.Territory.Detachment = null;
             loser.TerritoryId = null;
+            loser.Territory = null;
             _context.Detachments.Remove(loser);
         }
-    }
-
-    private int GetAdjacentTerritoryId(MilitaryDetachment detachment, int direction)
-    {
-        int width = detachment.Player!.Game!.Map!.Width;
-        return direction switch
-        {
-            0 => detachment.TerritoryId!.Value - width, // N
-            1 => detachment.TerritoryId!.Value + 1,     // E
-            2 => detachment.TerritoryId!.Value + width, // S
-            3 => detachment.TerritoryId!.Value - 1,     // O
-            _ => detachment.TerritoryId!.Value
-        };
     }
 }

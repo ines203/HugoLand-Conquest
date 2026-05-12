@@ -113,5 +113,7 @@
             <Setter Property="Margin"      Value="0,10,0,4"/>
         </Style>
 
+        <!-- Converter Bool -> Visibility -->
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
     </Application.Resources>
 </Application>

@@ -1,3 +1,4 @@
+using HugoLandCore.Models;
 using System.Windows;
 
 namespace HugoLandWpf;
@@ -7,6 +8,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        MusicManager.PlayMenu();
     }
 
     private void BtnNouvellePartie_Click(object sender, RoutedEventArgs e)
@@ -17,7 +19,7 @@ public partial class MainWindow : Window
         if (!worlds.Any())
         {
             MessageBox.Show(
-                "No valid world available.\nCreate and validate a world in the editor first",
+                "No validated world available.\nCreate and validate a world in the editor first.",
                 "No world available",
                 MessageBoxButton.OK, MessageBoxImage.Information);
             return;
@@ -66,13 +68,13 @@ public partial class MainWindow : Window
             MessageBox.Show(
                 $"Error opening World Editor:\n\n{ex.Message}\n\n{ex.InnerException?.Message}",
                 "World Editor Error",
-                MessageBoxButton.OK,
-                MessageBoxImage.Error);
+                MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
     private void BtnQuitter_Click(object sender, RoutedEventArgs e)
     {
+        MusicManager.Stop();
         Application.Current.Shutdown();
     }
 }

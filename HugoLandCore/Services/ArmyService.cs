@@ -27,11 +27,11 @@ public class ArmyService
 
         int new_territory_id = direction switch
         {
-            0 => old_territory_id - width,
-            1 => old_territory_id + 1,
-            2 => old_territory_id + width,
-            3 => old_territory_id - 1,
-            _ => old_territory_id
+            0 => old_territory_id - width, // North
+            1 => old_territory_id + 1, // East
+            2 => old_territory_id + width, // South
+            3 => old_territory_id - 1, // West
+            _ => old_territory_id // Nothing
         };
 
         var new_territory = _context.Territories.Find(new_territory_id);

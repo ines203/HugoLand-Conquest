@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\fog.png" />
     <None Remove="Assets\Music\battleMusic.mp3" />
     <None Remove="Assets\Music\mediavalMusic.mp3" />
     <None Remove="Assets\Music\strategyMusic.mp3" />
@@ -31,6 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Assets\fog.png" />
     <Resource Include="Assets\terrain_foret.png" />
     <Resource Include="Assets\terrain_mer.png" />
     <Resource Include="Assets\terrain_montagne.png" />

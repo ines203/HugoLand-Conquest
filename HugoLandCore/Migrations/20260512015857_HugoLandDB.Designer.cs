@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HugoLandCore.Migrations
 {
     [DbContext(typeof(HugoLandContext))]
-    [Migration("20260418172226_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260512015857_HugoLandDB")]
+    partial class HugoLandDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

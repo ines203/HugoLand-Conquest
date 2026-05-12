@@ -1,13 +1,14 @@
-using HugoLandCore.Models;
 using HugoLand.Core.Services;
+using HugoLandCore.Models;
 using HugoLandCore.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Shapes;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 
 namespace HugoLandWpf;
 
@@ -48,6 +49,10 @@ public partial class GameWindow : Window
         { TerrainType.Montagne, "pack://application:,,,/Assets/terrain_montagne.png" },
         { TerrainType.Mer,      "pack://application:,,,/Assets/terrain_mer.png"      }
     };
+
+    private readonly ImageBrush _fogBrush =
+    new ImageBrush(new BitmapImage(
+        new Uri("pack://application:,,,/Assets/fog.png")));
 
     private static System.Windows.Media.Imaging.BitmapImage? LoadTerrainImage(TerrainType terrain)
     {
@@ -93,6 +98,7 @@ public partial class GameWindow : Window
 
     private void DessinerPlateau()
     {
+        UpdateFogOfWar();
         CanvasJeu.Children.Clear();
         var map = _game.Map!;
         CanvasJeu.Width  = map.Width  * CELL + 1;
@@ -104,6 +110,11 @@ public partial class GameWindow : Window
 
     private void DessinerCase(Territory t)
     {
+        int playerId = _currentPlayer.Id;
+
+        bool visible = t.IsVisibleTo(playerId);
+        bool explored = t.IsExploredBy(playerId);
+
         double left = t.X * CELL;
         double top  = t.Y * CELL;
 
@@ -125,6 +136,40 @@ public partial class GameWindow : Window
         Canvas.SetTop(rect, top);
         rect.MouseLeftButtonDown += Cell_Click;
         CanvasJeu.Children.Add(rect);
+
+        if (!explored)
+        {
+            var fog = new Rectangle
+            {
+                Width = CELL - 1,
+                Height = CELL - 1,
+                Fill = _fogBrush,
+                Opacity = 1.0,
+                IsHitTestVisible = false
+            };
+            Canvas.SetLeft(fog, left);
+            Canvas.SetTop(fog, top);
+            CanvasJeu.Children.Add(fog);
+
+            return;
+        }
+
+        // tuiles explorées mais pas dans le range
+        // (on connait le terrain mais on sait pas si ennemi)
+        if (!visible)
+        {
+            var shroud = new Rectangle
+            {
+                Width = CELL - 1,
+                Height = CELL - 1,
+                Fill = _fogBrush,
+                Opacity = 0.33,
+                IsHitTestVisible = false
+            };
+            Canvas.SetLeft(shroud, left);
+            Canvas.SetTop(shroud, top);
+            CanvasJeu.Children.Add(shroud);
+        }
 
         // Highlight déplacement possible
         if (_movingMode && _selectedArmy?.Territory != null)
@@ -174,7 +219,7 @@ public partial class GameWindow : Window
         }
 
         // Détachement militaire
-        if (t.Detachment != null)
+        if (t.Detachment != null && visible)
         {
             bool own   = t.Detachment.PlayerId == _currentPlayer.Id;
             bool canAct = t.Detachment.Actionable && t.Detachment.Force >= 10;
@@ -295,19 +340,17 @@ public partial class GameWindow : Window
             DessinerPlateau();
         }
     }
-
     private void MettreAJourPanneau()
     {
-        // Mise à jour via ViewModel (data-binding)
         _vm.UpdateFromGame(_game, _currentPlayer);
         _vm.UpdateSelectedArmy(_selectedArmy, _currentPlayer);
 
-        // Couleur bandeau joueur (non bindable simplement)
-        bool isP1 = _currentPlayer.Id == _game.Players.Min(p => p.Id);
-        GradStop1.Color = isP1 ? Color.FromRgb(29, 78, 216)  : Color.FromRgb(153, 27, 27);
-        GradStop2.Color = isP1 ? Color.FromRgb(13, 42, 112)  : Color.FromRgb(80, 10, 10);
-    }
+        var firstPlayerId = _game.Players.OrderBy(p => p.Id).Select(p => p.Id).First();
+        bool isFirstPlayer = _currentPlayer.Id == firstPlayerId;
 
+        GradStop1.Color = isFirstPlayer ? Color.FromRgb(29, 78, 216) : Color.FromRgb(153, 27, 27);
+        GradStop2.Color = isFirstPlayer ? Color.FromRgb(13, 42, 112) : Color.FromRgb(80, 10, 10);
+    }
     private void BtnDeplacer_Click(object sender, RoutedEventArgs e)
     {
         if (_selectedArmy == null) return;
@@ -504,5 +547,47 @@ public partial class GameWindow : Window
 
         anim.Completed += (s, e) => CanvasJeu.Children.Remove(flash);
         brush.BeginAnimation(SolidColorBrush.ColorProperty, anim);
+    }
+
+    /// <summary>
+    /// mettre a jour fog of war 
+    /// </summary>
+    private void UpdateFogOfWar()
+    {
+        int playerId = _currentPlayer.Id;
+
+        // Clear ONLY this player's visibility
+        foreach (var t in _game.Map!.Territories)
+        {
+            t.VisibleByPlayers.Remove(playerId);
+        }
+
+        foreach (var army in _currentPlayer.Detachments)
+        {
+            if (army.Territory != null)
+                RevealTerritory(army.Territory, 2);
+        }
+
+        foreach (var inst in _currentPlayer.Installations)
+        {
+            if (inst.Territory != null)
+                RevealTerritory(inst.Territory, 1);
+        }
+    }
+    private void RevealTerritory(Territory center, int radius)
+    {
+        int playerId = _currentPlayer.Id;
+
+        foreach (var t in _game.Map!.Territories)
+        {
+            int dist = Math.Abs(t.X - center.X)
+                     + Math.Abs(t.Y - center.Y);
+
+            if (dist <= radius)
+            {
+                t.VisibleByPlayers.Add(playerId);
+                t.ExploredByPlayers.Add(playerId);
+            }
+        }
     }
 }

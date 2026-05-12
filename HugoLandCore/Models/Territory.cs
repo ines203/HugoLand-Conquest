@@ -1,4 +1,6 @@
-﻿namespace HugoLandCore.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace HugoLandCore.Models;
 
 public enum TerrainType
 {
@@ -14,6 +16,22 @@ public class Territory
     public int X { get; set; }
     public int Y { get; set; }
     public TerrainType Terrain { get; set; }
+
+
+    // Fog of war
+    [NotMapped]
+    public HashSet<int> VisibleByPlayers { get; set; } = new();
+    [NotMapped]
+    public HashSet<int> ExploredByPlayers { get; set; } = new();
+
+    public bool IsVisibleTo(int playerId)
+    {
+        return VisibleByPlayers.Contains(playerId);
+    }
+    public bool IsExploredBy(int playerId)
+    {
+        return ExploredByPlayers.Contains(playerId);
+    }
 
     public float TerrainBonus
     {

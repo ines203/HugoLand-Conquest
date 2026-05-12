@@ -3,111 +3,108 @@ using System.Runtime.InteropServices;
 namespace HugoLandWpf;
 
 /// <summary>
-/// Génère des sons de jeu musicaux via les API Windows (pas de fichiers externes requis).
+/// Sons de jeu générés via l'API Windows Beep.
+/// Aucun fichier audio externe requis.
 /// </summary>
 public static class SoundManager
 {
     [DllImport("kernel32.dll")]
     private static extern bool Beep(int frequency, int duration);
 
-    private static bool _enabled = true;
+    public static bool Enabled { get; set; } = true;
 
-    public static bool Enabled
-    {
-        get => _enabled;
-        set => _enabled = value;
-    }
+    // ── Sons ──────────────────────────────────────────────
 
-    // ── Sons de jeu ──────────────────────────────────────
-
-    /// <summary>Clic léger — confirmation d'action</summary>
+    /// <summary>Clic léger — sélection / confirmation</summary>
     public static void PlayClick() => Play(() =>
     {
-        Beep(880, 40);
-        Beep(1100, 40);
+        Beep(1047, 30); // Do
+        Beep(1319, 40); // Mi
     });
 
-    /// <summary>Déplacement d'armée — pas militaires</summary>
+    /// <summary>Déplacement — pas sur herbe</summary>
     public static void PlayMove() => Play(() =>
     {
-        Beep(440, 60);
-        Beep(550, 60);
+        Beep(392, 50);  // Sol
+        Beep(523, 60);  // Do
     });
 
-    /// <summary>Construction — marteau sur enclume</summary>
+    /// <summary>Construction — 3 notes montantes</summary>
     public static void PlayBuild() => Play(() =>
     {
-        Beep(300, 80);
-        Beep(400, 60);
-        Beep(500, 80);
+        Beep(523, 60);  // Do
+        Beep(659, 60);  // Mi
+        Beep(784, 80);  // Sol
     });
 
-    /// <summary>Combat — choc de lames</summary>
+    /// <summary>Combat — choc sourd</summary>
     public static void PlayCombat() => Play(() =>
     {
-        Beep(200, 60);
-        Beep(150, 80);
-        Beep(250, 100);
+        Beep(220, 50);
+        Beep(185, 80);
+        Beep(165, 100);
     });
 
-    /// <summary>Fin de tour — cloche</summary>
+    /// <summary>Fin de tour — cloche grave</summary>
     public static void PlayEndTurn() => Play(() =>
     {
-        Beep(660, 100);
-        Beep(880, 150);
+        Beep(523, 80);  // Do
+        Beep(784, 120); // Sol
     });
 
     /// <summary>Renforcement — tambour</summary>
     public static void PlayReinforce() => Play(() =>
     {
-        Beep(220, 80);
-        Beep(220, 80);
-        Beep(330, 120);
+        Beep(196, 70);
+        Thread.Sleep(20);
+        Beep(196, 70);
+        Thread.Sleep(20);
+        Beep(294, 100);
     });
 
     /// <summary>Scission — deux notes séparées</summary>
     public static void PlaySplit() => Play(() =>
     {
-        Beep(660, 80);
+        Beep(784, 60);  // Sol
         Thread.Sleep(30);
-        Beep(440, 80);
+        Beep(523, 60);  // Do
     });
 
-    /// <summary>Victoire — fanfare</summary>
+    /// <summary>Victoire — fanfare majeure</summary>
     public static void PlayVictory() => Play(() =>
     {
-        int[] notes = { 523, 659, 784, 1047 };
+        int[] notes = { 523, 659, 784, 1047, 1319 };
         foreach (var n in notes)
         {
-            Beep(n, 150);
-            Thread.Sleep(20);
+            Beep(n, 120);
+            Thread.Sleep(15);
         }
-        Beep(1047, 400);
+        Beep(1319, 500);
     });
 
-    /// <summary>Défaite — descente triste</summary>
+    /// <summary>Défaite — descente mineure triste</summary>
     public static void PlayDefeat() => Play(() =>
     {
-        int[] notes = { 440, 370, 311, 277 };
+        int[] notes = { 494, 440, 392, 349 };
         foreach (var n in notes)
         {
-            Beep(n, 180);
+            Beep(n, 160);
             Thread.Sleep(10);
         }
+        Beep(262, 400);
     });
 
-    /// <summary>Erreur — buzz</summary>
+    /// <summary>Erreur</summary>
     public static void PlayError() => Play(() =>
     {
-        Beep(200, 100);
-        Beep(180, 150);
+        Beep(220, 80);
+        Thread.Sleep(20);
+        Beep(196, 120);
     });
-
-    // ── Utilitaire ───────────────────────────────────────
 
     private static void Play(Action sound)
     {
-        if (!_enabled) return;
-        Task.Run(sound); // non-bloquant
+        if (!Enabled) return;
+        Task.Run(sound);
     }
 }

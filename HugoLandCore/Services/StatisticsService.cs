@@ -288,13 +288,17 @@ public class StatisticsService
                     ? $"{players[0].Name} wins"
                     : $"{players[1].Name} wins";
             }
+            string mapSize = g.Map != null
+                ? $"{g.Map.Width}×{g.Map.Height}"
+                : "?×?";
+
             return new GameHistoryEntry(
                 g.Id,
                 g.Name,
-                $"{g.Map!.Width}×{g.Map.Height}",
+                mapSize,
                 result,
                 g.TurnNumber,
-                DateTime.Now  // approximatif (pas de date sur Game)
+                DateTime.Now
             );
         }).ToList();
 
@@ -330,19 +334,23 @@ public class StatisticsService
         if (total == 0)
             return new GlobalStats(0, 0, 0, 0);
 
-        // Taux de victoire (ici on compte toutes les parties terminées normalement)
-        // Par convention : victoire = au moins un joueur a des armées
-        double winRate = total > 0 ? 100.0 : 0;
+        double winRate = 100.0;
 
         // Tours moyen par partie terminée
         double avgTurns = finishedGames.Average(g => (double)g.TurnNumber);
 
-        // Or moyen par partie (moyenne du dernier snapshot de chaque joueur)
-        double avgGold = _context.Snapshots
-            .Where(s => finishedGames.Select(g => g.Id).Contains(s.GameId))
+        // Or moyen — sécurisé si aucun snapshot
+        var finishedIds = finishedGames.Select(g => g.Id).ToList();
+        var lastSnaps = _context.Snapshots
+            .Where(s => finishedIds.Contains(s.GameId))
+            .ToList()
             .GroupBy(s => new { s.GameId, s.PlayerId })
             .Select(g => g.OrderByDescending(s => s.TurnNumber).First())
-            .Average(s => (double)s.Gold);
+            .ToList();
+
+        double avgGold = lastSnaps.Any()
+            ? lastSnaps.Average(s => (double)s.Gold)
+            : 0;
 
         return new GlobalStats(total, winRate, avgTurns, avgGold);
     }

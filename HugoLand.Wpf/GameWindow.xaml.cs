@@ -578,9 +578,13 @@ public partial class GameWindow : Window
     /// <summary>Affiche le rapport post-partie puis retourne au menu principal.</summary>
     private void ShowReportAndGoMenu()
     {
-        var report = new GameReportWindow(_gameId);
-        report.Owner = this;
-        report.ShowDialog();
+        try
+        {
+            var report = new GameReportWindow(_gameId);
+            report.ShowDialog();
+        }
+        catch { /* rapport optionnel, on continue */ }
+
         new MainWindow().Show();
         Close();
     }

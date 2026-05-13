@@ -31,18 +31,18 @@ public partial class App : Application
 
             Context = new HugoLandContext(options);
 
-            // Si la DB existe déjà avec les tables, Migrate() plante.
-            // On supprime et recrée proprement si nécessaire.
+            // Tenter la migration ; si la DB est déjà à jour, EnsureCreated suffit.
+            // On ne supprime JAMAIS la DB automatiquement pour ne pas perdre les sauvegardes.
             try
             {
                 Context.Database.Migrate();
             }
             catch
             {
-                // La DB existe déjà mais les migrations sont en conflit :
-                // on la recrée proprement.
-                Context.Database.EnsureDeleted();
-                Context.Database.EnsureCreated();
+                // Migration impossible (ex: DB créée sans migrations).
+                // On tente juste EnsureCreated pour créer les tables manquantes.
+                try { Context.Database.EnsureCreated(); }
+                catch { /* DB déjà à jour */ }
             }
 
             // Services

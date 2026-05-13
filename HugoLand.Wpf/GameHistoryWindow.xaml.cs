@@ -14,8 +14,20 @@ public partial class GameHistoryWindow : Window
     {
         InitializeComponent();
         _stats = new StatisticsService(App.Context);
-        LoadGlobalStats();
-        LoadHistory();
+
+        try { LoadGlobalStats(); }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Stats error:\n{ex.Message}\n\nStack:\n{ex.StackTrace}", "Stats Error",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+
+        try { LoadHistory(); }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"History error:\n{ex.Message}\n\nStack:\n{ex.StackTrace}", "History Error",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
     }
 
     private void LoadGlobalStats()

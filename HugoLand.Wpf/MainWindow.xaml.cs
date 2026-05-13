@@ -82,8 +82,18 @@ public partial class MainWindow : Window
 
     private void BtnHistorique_Click(object sender, RoutedEventArgs e)
     {
-        var hist = new GameHistoryWindow();
-        hist.Owner = this;
-        hist.ShowDialog();
+        try
+        {
+            var hist = new GameHistoryWindow();
+            // Pas de Owner ici — évite la fermeture en cascade
+            hist.ShowDialog();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"Error opening Game History:\n\n{ex.Message}\n\n{ex.InnerException?.Message}",
+                "History Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 }

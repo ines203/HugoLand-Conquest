@@ -70,24 +70,34 @@
                 <TextBlock Text="Filter: " Foreground="#64748B" FontSize="11"
                            FontFamily="Consolas" VerticalAlignment="Center"/>
                 <ComboBox x:Name="CmbFilter" Width="130" Margin="4,0,16,0"
-                          Background="#1E293B" Foreground="#E2E8F0"
                           FontFamily="Consolas" FontSize="11"
                           SelectionChanged="Filter_Changed">
-                    <ComboBoxItem Content="All games" IsSelected="True"/>
-                    <ComboBoxItem Content="Wins only"/>
-                    <ComboBoxItem Content="Finished"/>
+                    <ComboBox.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="#1E293B"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#3B82F6"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="White"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.WindowTextBrushKey}" Color="#E2E8F0"/>
+                    </ComboBox.Resources>
+                    <ComboBoxItem Content="All games" IsSelected="True" Foreground="#E2E8F0"/>
+                    <ComboBoxItem Content="Wins only" Foreground="#E2E8F0"/>
+                    <ComboBoxItem Content="Finished" Foreground="#E2E8F0"/>
                 </ComboBox>
 
                 <TextBlock Text="Sort by: " Foreground="#64748B" FontSize="11"
                            FontFamily="Consolas" VerticalAlignment="Center"/>
-                <ComboBox x:Name="CmbSort" Width="100" Margin="4,0,0,0"
-                          Background="#1E293B" Foreground="#E2E8F0"
+                <ComboBox x:Name="CmbSort" Width="120" Margin="4,0,0,0"
                           FontFamily="Consolas" FontSize="11"
                           SelectionChanged="Filter_Changed">
-                    <ComboBoxItem Content="Newest" IsSelected="True"/>
-                    <ComboBoxItem Content="Oldest"/>
-                    <ComboBoxItem Content="Most turns"/>
-                    <ComboBoxItem Content="Fewest turns"/>
+                    <ComboBox.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="#1E293B"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#3B82F6"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="White"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.WindowTextBrushKey}" Color="#E2E8F0"/>
+                    </ComboBox.Resources>
+                    <ComboBoxItem Content="Newest" IsSelected="True" Foreground="#E2E8F0"/>
+                    <ComboBoxItem Content="Oldest" Foreground="#E2E8F0"/>
+                    <ComboBoxItem Content="Most turns" Foreground="#E2E8F0"/>
+                    <ComboBoxItem Content="Fewest turns" Foreground="#E2E8F0"/>
                 </ComboBox>
             </StackPanel>
         </Border>

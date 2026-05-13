@@ -14,6 +14,10 @@ public partial class App : Application
     public static EconomyService EconomyService { get; private set; } = null!;
     public static CombatService CombatService { get; private set; } = null!;
     public static ArmyService ArmyService { get; private set; } = null!;
+    public static StatisticsService StatisticsService { get; private set; } = null!;
+
+    // Indique si le joueur 2 est une IA (défini à la création de partie)
+    public static bool IsPlayer2AI { get; set; } = false;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -33,6 +37,7 @@ public partial class App : Application
         ArmyService = new ArmyService(Context, CombatService, InstallationService);
         CombatService.SetArmyService(ArmyService);
         WorldService = new WorldTemplateService(Context);
+        StatisticsService = new StatisticsService(Context);
 
         // Seed les 3 mondes requis si pas encore créés
         SeedWorlds.EnsureWorlds(Context);

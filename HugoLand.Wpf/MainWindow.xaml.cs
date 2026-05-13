@@ -31,6 +31,8 @@ public partial class MainWindow : Window
             var creation = new CreatePlayersWindow();
             if (creation.ShowDialog() == true)
             {
+                App.IsPlayer2AI = creation.IsPlayer2AI;
+
                 var game = App.WorldService.CreateGameFromWorld(
                     selection.SelectedWorld,
                     creation.Player1Name,
@@ -76,5 +78,12 @@ public partial class MainWindow : Window
     {
         MusicManager.Stop();
         Application.Current.Shutdown();
+    }
+
+    private void BtnHistorique_Click(object sender, RoutedEventArgs e)
+    {
+        var hist = new GameHistoryWindow();
+        hist.Owner = this;
+        hist.ShowDialog();
     }
 }

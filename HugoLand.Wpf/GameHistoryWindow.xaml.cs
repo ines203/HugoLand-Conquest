@@ -9,6 +9,7 @@ namespace HugoLandWpf;
 public partial class GameHistoryWindow : Window
 {
     private readonly StatisticsService _stats;
+    private bool _initialized = false;  // garde pour éviter Filter_Changed prématuré
 
     public GameHistoryWindow()
     {
@@ -18,16 +19,18 @@ public partial class GameHistoryWindow : Window
         try { LoadGlobalStats(); }
         catch (Exception ex)
         {
-            MessageBox.Show($"Stats error:\n{ex.Message}\n\nStack:\n{ex.StackTrace}", "Stats Error",
+            MessageBox.Show($"Stats error:\n{ex.Message}\n\n{ex.StackTrace}", "Stats Error",
                 MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 
         try { LoadHistory(); }
         catch (Exception ex)
         {
-            MessageBox.Show($"History error:\n{ex.Message}\n\nStack:\n{ex.StackTrace}", "History Error",
+            MessageBox.Show($"History error:\n{ex.Message}\n\n{ex.StackTrace}", "History Error",
                 MessageBoxButton.OK, MessageBoxImage.Warning);
         }
+
+        _initialized = true;
     }
 
     private void LoadGlobalStats()
@@ -183,7 +186,11 @@ public partial class GameHistoryWindow : Window
         return border;
     }
 
-    private void Filter_Changed(object sender, SelectionChangedEventArgs e) => LoadHistory();
+    private void Filter_Changed(object sender, SelectionChangedEventArgs e)
+    {
+        if (!_initialized) return;
+        LoadHistory();
+    }
     private void BtnRefresh_Click(object sender, RoutedEventArgs e)
     {
         LoadGlobalStats();

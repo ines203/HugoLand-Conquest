@@ -85,14 +85,16 @@ public partial class MainWindow : Window
         try
         {
             var hist = new GameHistoryWindow();
-            // Pas de Owner ici — évite la fermeture en cascade
             hist.ShowDialog();
         }
         catch (Exception ex)
         {
-            MessageBox.Show(
-                $"Error opening Game History:\n\n{ex.Message}\n\n{ex.InnerException?.Message}",
-                "History Error",
+            var inner = ex.InnerException;
+            string msg = $"Type: {ex.GetType().Name}\n\nMessage: {ex.Message}";
+            if (inner != null)
+                msg += $"\n\nInner: {inner.GetType().Name}: {inner.Message}";
+            msg += $"\n\nStack:\n{ex.StackTrace}";
+            MessageBox.Show(msg, "History Error — Full Details",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }

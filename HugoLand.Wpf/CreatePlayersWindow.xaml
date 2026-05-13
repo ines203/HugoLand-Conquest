@@ -61,11 +61,18 @@
                      Margin="0,6,0,16" Padding="8,7"
                      FontSize="13" CaretBrush="White"/>
 
-            <TextBlock Text="Player 2 name:"
-                       Foreground="#FCA5A5" FontSize="12" FontFamily="Consolas"/>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                <TextBlock Text="Player 2 name:"
+                           Foreground="#FCA5A5" FontSize="12" FontFamily="Consolas"
+                           VerticalAlignment="Center"/>
+                <CheckBox x:Name="ChkIA" Content="  AI opponent"
+                          Foreground="#F59E0B" FontSize="11" FontFamily="Consolas"
+                          Margin="16,0,0,0" VerticalAlignment="Center"
+                          Checked="ChkIA_Checked" Unchecked="ChkIA_Unchecked"/>
+            </StackPanel>
             <TextBox x:Name="TxtJoueur2" Background="#1A2035" Foreground="White"
                      BorderBrush="#EF4444" BorderThickness="1"
-                     Margin="0,6,0,0" Padding="8,7"
+                     Margin="0,2,0,0" Padding="8,7"
                      FontSize="13" CaretBrush="White"/>
         </StackPanel>
     </DockPanel>

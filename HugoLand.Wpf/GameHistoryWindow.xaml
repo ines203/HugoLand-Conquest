@@ -97,7 +97,7 @@
                 BorderThickness="1" CornerRadius="6" Padding="0">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel x:Name="GameListPanel" Margin="0"/>
-            </StackPanel>
+            </ScrollViewer>
         </Border>
 
         <!-- Boutons -->

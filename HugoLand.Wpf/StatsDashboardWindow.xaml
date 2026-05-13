@@ -1,0 +1,178 @@
+<Window x:Class="HugoLandWpf.StatsDashboardWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Live Dashboard" Height="600" Width="750"
+        Background="#0D1018" WindowStyle="None"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner">
+
+    <Window.Resources>
+        <Style x:Key="HeaderLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#64748B"/>
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,0,0,2"/>
+        </Style>
+        <Style x:Key="StatValue" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#E2E8F0"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        <Style x:Key="P1Val" TargetType="TextBlock" BasedOn="{StaticResource StatValue}">
+            <Setter Property="Foreground" Value="#60A5FA"/>
+        </Style>
+        <Style x:Key="P2Val" TargetType="TextBlock" BasedOn="{StaticResource StatValue}">
+            <Setter Property="Foreground" Value="#F87171"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Titre -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
+            <TextBlock Text="📊  LIVE DASHBOARD" Foreground="#F59E0B"
+                       FontSize="16" FontWeight="Bold" FontFamily="Consolas"/>
+            <TextBlock x:Name="TxtTurn" Foreground="#64748B"
+                       FontSize="14" FontFamily="Consolas" Margin="16,0,0,0"
+                       VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- Tableau comparatif -->
+        <Border Grid.Row="1" Background="#111520" BorderBrush="#1E293B"
+                BorderThickness="1" CornerRadius="6" Padding="16" Margin="0,0,0,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="80"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Noms joueurs -->
+                <TextBlock Grid.Row="0" Grid.Column="0" x:Name="TxtP1Name"
+                           Text="Player 1" Foreground="#60A5FA"
+                           FontSize="14" FontWeight="Bold" FontFamily="Consolas"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="0" Grid.Column="1"
+                           Text="VS" Foreground="#475569"
+                           FontSize="12" FontFamily="Consolas"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="0" Grid.Column="2" x:Name="TxtP2Name"
+                           Text="Player 2" Foreground="#F87171"
+                           FontSize="14" FontWeight="Bold" FontFamily="Consolas"
+                           HorizontalAlignment="Center"/>
+
+                <Separator Grid.Row="1" Grid.ColumnSpan="3" Background="#1E293B" Margin="0,8"/>
+
+                <!-- Armées -->
+                <TextBlock Grid.Row="2" Grid.Column="0" x:Name="TxtP1Armies"
+                           Style="{StaticResource P1Val}" HorizontalAlignment="Center"/>
+                <TextBlock Grid.Row="2" Grid.Column="1"
+                           Text="ARMIES" Style="{StaticResource HeaderLabel}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="2" Grid.Column="2" x:Name="TxtP2Armies"
+                           Style="{StaticResource P2Val}" HorizontalAlignment="Center"/>
+
+                <!-- Force -->
+                <TextBlock Grid.Row="3" Grid.Column="0" x:Name="TxtP1Force"
+                           Style="{StaticResource P1Val}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                <TextBlock Grid.Row="3" Grid.Column="1"
+                           Text="FORCE" Style="{StaticResource HeaderLabel}"
+                           HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,8,0,0"/>
+                <TextBlock Grid.Row="3" Grid.Column="2" x:Name="TxtP2Force"
+                           Style="{StaticResource P2Val}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+
+                <!-- Fortifications -->
+                <TextBlock Grid.Row="4" Grid.Column="0" x:Name="TxtP1Forts"
+                           Style="{StaticResource P1Val}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                <TextBlock Grid.Row="4" Grid.Column="1"
+                           Text="FORTS" Style="{StaticResource HeaderLabel}"
+                           HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,8,0,0"/>
+                <TextBlock Grid.Row="4" Grid.Column="2" x:Name="TxtP2Forts"
+                           Style="{StaticResource P2Val}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+
+                <!-- Or -->
+                <StackPanel Grid.Row="5" Grid.Column="0" Orientation="Horizontal"
+                            HorizontalAlignment="Center" Margin="0,8,0,0">
+                    <TextBlock x:Name="TxtP1Gold" Style="{StaticResource P1Val}"/>
+                    <TextBlock Text=" ⬡" Foreground="#F59E0B" FontSize="14" VerticalAlignment="Center"/>
+                </StackPanel>
+                <TextBlock Grid.Row="5" Grid.Column="1"
+                           Text="GOLD" Style="{StaticResource HeaderLabel}"
+                           HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,8,0,0"/>
+                <StackPanel Grid.Row="5" Grid.Column="2" Orientation="Horizontal"
+                            HorizontalAlignment="Center" Margin="0,8,0,0">
+                    <TextBlock x:Name="TxtP2Gold" Style="{StaticResource P2Val}"/>
+                    <TextBlock Text=" ⬡" Foreground="#F59E0B" FontSize="14" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Revenue / Maintenance -->
+                <StackPanel Grid.Row="6" Grid.Column="0" HorizontalAlignment="Center" Margin="0,8,0,0">
+                    <TextBlock x:Name="TxtP1Rev" Foreground="#10B981" FontSize="11" FontFamily="Consolas"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="TxtP1Maint" Foreground="#EF4444" FontSize="11" FontFamily="Consolas"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="TxtP1Debt" Foreground="#F59E0B" FontSize="10" FontFamily="Consolas"
+                               HorizontalAlignment="Center" Visibility="Collapsed"/>
+                </StackPanel>
+                <TextBlock Grid.Row="6" Grid.Column="1"
+                           Text="ECONOMY" Style="{StaticResource HeaderLabel}"
+                           HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,8,0,0"/>
+                <StackPanel Grid.Row="6" Grid.Column="2" HorizontalAlignment="Center" Margin="0,8,0,0">
+                    <TextBlock x:Name="TxtP2Rev" Foreground="#10B981" FontSize="11" FontFamily="Consolas"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="TxtP2Maint" Foreground="#EF4444" FontSize="11" FontFamily="Consolas"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="TxtP2Debt" Foreground="#F59E0B" FontSize="10" FontFamily="Consolas"
+                               HorizontalAlignment="Center" Visibility="Collapsed"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Graphique d'évolution de la force -->
+        <Border Grid.Row="2" Background="#111520" BorderBrush="#1E293B"
+                BorderThickness="1" CornerRadius="6" Padding="16">
+            <StackPanel>
+                <TextBlock Text="FORCE EVOLUTION (last 20 turns)"
+                           Style="{StaticResource HeaderLabel}" Margin="0,0,0,8"/>
+
+                <!-- Légende -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                    <Rectangle Width="16" Height="3" Fill="#60A5FA" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                    <TextBlock x:Name="TxtLegendP1" Text="Player 1" Foreground="#60A5FA"
+                               FontSize="10" FontFamily="Consolas" Margin="0,0,16,0"/>
+                    <Rectangle Width="16" Height="3" Fill="#F87171" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                    <TextBlock x:Name="TxtLegendP2" Text="Player 2" Foreground="#F87171"
+                               FontSize="10" FontFamily="Consolas"/>
+                </StackPanel>
+
+                <!-- Canvas du graphique -->
+                <Canvas x:Name="ChartCanvas" Height="140" Background="#0D1018"
+                        ClipToBounds="True"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Bouton fermer -->
+        <Button Grid.Row="3" Content="Close" Margin="0,12,0,0"
+                Background="#1E293B" BorderBrush="#334155" Foreground="#94A3B8"
+                FontFamily="Consolas" Padding="20,6"
+                HorizontalAlignment="Right"
+                Click="BtnClose_Click"/>
+    </Grid>
+</Window>

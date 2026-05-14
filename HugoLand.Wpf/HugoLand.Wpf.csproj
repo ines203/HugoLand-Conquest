@@ -10,6 +10,8 @@
 
   <ItemGroup>
     <None Remove="Assets\fog.png" />
+    <None Remove="Assets\HugoLand_Conquest_Logo.ico" />
+    <None Remove="Assets\HugoLand_Conquest_Logo.png" />
     <None Remove="Assets\Music\battleMusic.mp3" />
     <None Remove="Assets\Music\mediavalMusic.mp3" />
     <None Remove="Assets\Music\strategyMusic.mp3" />
@@ -33,6 +35,12 @@
 
   <ItemGroup>
     <Resource Include="Assets\fog.png" />
+    <Resource Include="Assets\HugoLand_Conquest_Logo.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\HugoLand_Conquest_Logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Assets\terrain_foret.png" />
     <Resource Include="Assets\terrain_mer.png" />
     <Resource Include="Assets\terrain_montagne.png" />

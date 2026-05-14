@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Create Players" Height="340" Width="400"
         WindowStartupLocation="CenterOwner"
-        ResizeMode="NoResize" Background="#111520">
+        ResizeMode="NoResize" Background="#111520"
+        Icon="Assets/HugoLand_Conquest_Logo.ico">
     <DockPanel Margin="24">
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal"
                     HorizontalAlignment="Right" Margin="0,16,0,0">

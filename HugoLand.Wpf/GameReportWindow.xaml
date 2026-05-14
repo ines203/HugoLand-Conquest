@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Game Report" Height="700" Width="800"
         Background="#0D1018"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        Icon="Assets/HugoLand_Conquest_Logo.ico">
 
     <Window.Resources>
         <Style x:Key="SectionTitle" TargetType="TextBlock">

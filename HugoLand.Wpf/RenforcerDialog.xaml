@@ -4,7 +4,8 @@
         Title="Reinforce Army" Height="230" Width="340"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize" Background="#111520"
-        BorderBrush="#1E293B" BorderThickness="1">
+        BorderBrush="#1E293B" BorderThickness="1"
+        Icon="Assets/HugoLand_Conquest_Logo.ico">
     <StackPanel Margin="24">
         <TextBlock x:Name="TxtOr" Text="Available gold: 50"
                    Foreground="#FCD34D" FontSize="13" FontFamily="Consolas"

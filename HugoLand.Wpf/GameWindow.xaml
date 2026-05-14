@@ -4,7 +4,8 @@
         Title="HugoLand: Conquest" Height="820" Width="1350"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource BgDeep}"
-        Closing="Window_Closing">
+        Closing="Window_Closing"
+        Icon="Assets/HugoLand_Conquest_Logo.ico">
 
     <Grid>
         <Grid.ColumnDefinitions>

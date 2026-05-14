@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Game History" Height="620" Width="780"
         Background="#0D1018"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        Icon="Assets/HugoLand_Conquest_Logo.ico">
 
     <Grid Margin="20">
         <Grid.RowDefinitions>

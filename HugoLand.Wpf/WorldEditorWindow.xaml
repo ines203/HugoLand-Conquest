@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Éditeur de monde — HugoLand" Height="750" Width="1100"
         WindowStartupLocation="CenterScreen"
-        Background="#1E1E1E" Closing="Window_Closing">
+        Background="#1E1E1E" Closing="Window_Closing"
+        Icon="Assets/HugoLand_Conquest_Logo.ico">
 
     <Grid Margin="10">
         <Grid.ColumnDefinitions>

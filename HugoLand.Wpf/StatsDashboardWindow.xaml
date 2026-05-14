@@ -4,7 +4,8 @@
         Title="Live Dashboard" Height="600" Width="750"
         Background="#0D1018" WindowStyle="None"
         ResizeMode="NoResize"
-        WindowStartupLocation="CenterOwner">
+        WindowStartupLocation="CenterOwner"
+        Icon="Assets/HugoLand_Conquest_Logo.ico">
 
     <Window.Resources>
         <Style x:Key="HeaderLabel" TargetType="TextBlock">

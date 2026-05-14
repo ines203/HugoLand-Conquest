@@ -236,7 +236,9 @@ public partial class GameWindow : Window
         // Détachement militaire
         if (t.Detachment != null && visible)
         {
-            bool own   = t.Detachment.PlayerId == _currentPlayer.Id;
+            // Joueur 1 = celui avec le plus petit Id
+            int firstPlayerId = _game.Players.Min(p => p.Id);
+            bool isP1Army = t.Detachment.PlayerId == firstPlayerId;
             bool canAct = t.Detachment.Actionable && t.Detachment.Force >= 10;
             bool selected = _selectedArmy?.Id == t.Detachment.Id;
 
@@ -256,9 +258,9 @@ public partial class GameWindow : Window
                 CanvasJeu.Children.Add(selRing);
             }
 
-            // Fond du cercle
-            Color baseColor = own
-                ? (canAct ? Color.FromRgb(29, 78, 216) : Color.FromRgb(15, 40, 100))
+            // Fond du cercle, couleur fixe par joueur
+            Color baseColor = isP1Army
+                ? (canAct ? Color.FromRgb(29, 78, 216) : Color.FromRgb(15, 40, 100))   // BLEU
                 : Color.FromRgb(185, 28, 28);
 
             var circle = new Ellipse

@@ -85,6 +85,8 @@ public partial class GameWindow : Window
     {
         _game = App.Context.Games
             .Include(g => g.Map).ThenInclude(m => m.Territories)
+                .ThenInclude(t => t.Visibility)
+            .Include(g => g.Map).ThenInclude(m => m.Territories)
                 .ThenInclude(t => t.Detachment).ThenInclude(d => d!.Player)
             .Include(g => g.Map).ThenInclude(m => m.Territories)
                 .ThenInclude(t => t.Installation)
@@ -563,7 +565,9 @@ public partial class GameWindow : Window
         // Clear ONLY this player's visibility
         foreach (var t in _game.Map!.Territories)
         {
-            t.VisibleByPlayers.Remove(playerId);
+            var vis = t.Visibility.FirstOrDefault(v => v.PlayerId == playerId);
+            if (vis != null)
+                vis.Visible = false;
         }
 
         foreach (var army in _currentPlayer.Detachments)
@@ -577,6 +581,8 @@ public partial class GameWindow : Window
             if (inst.Territory != null)
                 RevealTerritory(inst.Territory, 1);
         }
+
+        App.Context.SaveChanges();
     }
     private void RevealTerritory(Territory center, int radius)
     {
@@ -589,8 +595,25 @@ public partial class GameWindow : Window
 
             if (dist <= radius)
             {
-                t.VisibleByPlayers.Add(playerId);
-                t.ExploredByPlayers.Add(playerId);
+                var vis = t.Visibility.FirstOrDefault(v => v.PlayerId == playerId);
+
+                if (vis == null)
+                {
+                    vis = new TerritoryVisibility
+                    {
+                        PlayerId = playerId,
+                        TerritoryId = t.Id,
+                        Explored = true,
+                        Visible = true
+                    };
+                    t.Visibility.Add(vis);
+                }
+                else
+                {
+                    vis.Visible = true;
+                    vis.Explored = true;
+                }
+
             }
         }
     }

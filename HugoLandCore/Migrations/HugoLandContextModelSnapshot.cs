@@ -283,6 +283,35 @@ namespace HugoLandCore.Migrations
                     b.ToTable("TerritoryTemplates");
                 });
 
+            modelBuilder.Entity("HugoLandCore.Models.TerritoryVisibility", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Explored")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("PlayerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TerritoryId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Visible")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlayerId");
+
+                    b.HasIndex("TerritoryId");
+
+                    b.ToTable("TerritoryVisibilities");
+                });
+
             modelBuilder.Entity("HugoLandCore.Models.TurnSnapshot", b =>
                 {
                     b.Property<int>("Id")
@@ -477,6 +506,25 @@ namespace HugoLandCore.Migrations
                     b.Navigation("WorldTemplate");
                 });
 
+            modelBuilder.Entity("HugoLandCore.Models.TerritoryVisibility", b =>
+                {
+                    b.HasOne("HugoLandCore.Models.Player", "Player")
+                        .WithMany("TerritoryVisibilities")
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HugoLandCore.Models.Territory", "Territory")
+                        .WithMany("Visibility")
+                        .HasForeignKey("TerritoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Player");
+
+                    b.Navigation("Territory");
+                });
+
             modelBuilder.Entity("HugoLandCore.Models.TurnSnapshot", b =>
                 {
                     b.HasOne("HugoLandCore.Models.Game", "Game")
@@ -509,6 +557,8 @@ namespace HugoLandCore.Migrations
                     b.Navigation("Detachments");
 
                     b.Navigation("Installations");
+
+                    b.Navigation("TerritoryVisibilities");
                 });
 
             modelBuilder.Entity("HugoLandCore.Models.Territory", b =>
@@ -516,6 +566,8 @@ namespace HugoLandCore.Migrations
                     b.Navigation("Detachment");
 
                     b.Navigation("Installation");
+
+                    b.Navigation("Visibility");
                 });
 
             modelBuilder.Entity("HugoLandCore.Models.WorldTemplate", b =>

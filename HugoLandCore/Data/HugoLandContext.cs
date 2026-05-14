@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using HugoLandCore.Models;
+﻿using HugoLandCore.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
 
 namespace HugoLandCore.Data;
 
@@ -14,6 +15,7 @@ public class HugoLandContext : DbContext
     public DbSet<PlayerAction> PlayerActions => Set<PlayerAction>();
     public DbSet<CombatEvent> CombatEvents => Set<CombatEvent>();
     public DbSet<TurnSnapshot> Snapshots => Set<TurnSnapshot>();
+    public DbSet<TerritoryVisibility> TerritoryVisibilities => Set<TerritoryVisibility>();
 
     // TP2
     public DbSet<WorldTemplate> WorldTemplates => Set<WorldTemplate>();
@@ -74,5 +76,19 @@ public class HugoLandContext : DbContext
             .WithMany(w => w.Games)
             .HasForeignKey(g => g.WorldTemplateId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        // Permet de sauvegarder la visibilité des territoires par joueur
+        model.Entity<TerritoryVisibility>()
+            .HasOne(v => v.Territory)
+            .WithMany(t => t.Visibility)
+            .HasForeignKey(v => v.TerritoryId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        model.Entity<TerritoryVisibility>()
+            .HasOne(v => v.Player)
+            .WithMany(p => p.TerritoryVisibilities)
+            .HasForeignKey(v => v.PlayerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
     }
 }

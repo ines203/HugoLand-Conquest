@@ -14,4 +14,6 @@ public class Player
     public ICollection<PlayerAction> Actions { get; set; } = new List<PlayerAction>();
 
     public ICollection<Installation> Installations { get; set; } = new List<Installation>();
+    public ICollection<TerritoryVisibility> TerritoryVisibilities { get; set; } = new List<TerritoryVisibility>();
+
 }

@@ -19,19 +19,16 @@ public class Territory
 
 
     // Fog of war
-    [NotMapped]
-    public HashSet<int> VisibleByPlayers { get; set; } = new();
-    [NotMapped]
-    public HashSet<int> ExploredByPlayers { get; set; } = new();
-
     public bool IsVisibleTo(int playerId)
     {
-        return VisibleByPlayers.Contains(playerId);
+        return Visibility.Any(v => v.PlayerId == playerId && v.Visible);
     }
+
     public bool IsExploredBy(int playerId)
     {
-        return ExploredByPlayers.Contains(playerId);
+        return Visibility.Any(v => v.PlayerId == playerId && v.Explored);
     }
+
 
     public float TerrainBonus
     {
@@ -74,4 +71,5 @@ public class Territory
 
     public MilitaryDetachment? Detachment { get; set; }
     public Installation? Installation { get; set; }
+    public ICollection<TerritoryVisibility> Visibility { get; set; } = new List<TerritoryVisibility>();
 }

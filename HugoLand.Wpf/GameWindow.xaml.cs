@@ -1,4 +1,5 @@
 using HugoLand.Core.Services;
+using HugoLandCore.IA;
 using HugoLandCore.Models;
 using HugoLandCore.Services;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,10 @@ public partial class GameWindow : Window
     private bool _movingMode = false;
     private int _gameId;
     private readonly GameViewModel _vm = new();
+
+    // TP3 — Tableau de bord et IA
+    private StatsDashboardWindow? _dashboardWindow;
+    private NormalAi? _ai;
 
     private const int CELL = 64;
     private const int RADIUS = 16;
@@ -75,10 +80,17 @@ public partial class GameWindow : Window
         _gameId = gameId;
         DataContext = _vm;
         ChargerPartie();
-        _currentPlayer = _game.Players.ToList()[_game.CurrentPlayerIndex];
         DessinerPlateau();
         MettreAJourPanneau();
         MusicManager.PlayGame();
+
+        // Initialiser l'IA si joueur 2 est une IA
+        if (App.IsPlayer2AI)
+        {
+            var aiPlayer = _game.Players.OrderBy(p => p.Id).Skip(1).FirstOrDefault();
+            if (aiPlayer != null)
+                _ai = new NormalAi(App.Context, aiPlayer, App.ArmyService, App.InstallationService);
+        }
     }
 
     private void ChargerPartie()
@@ -224,9 +236,7 @@ public partial class GameWindow : Window
         // Détachement militaire
         if (t.Detachment != null && visible)
         {
-            // Joueur 1 = celui avec le plus petit Id
-            int firstPlayerId = _game.Players.Min(p => p.Id);
-            bool isP1Army = t.Detachment.PlayerId == firstPlayerId;
+            bool own   = t.Detachment.PlayerId == _currentPlayer.Id;
             bool canAct = t.Detachment.Actionable && t.Detachment.Force >= 10;
             bool selected = _selectedArmy?.Id == t.Detachment.Id;
 
@@ -246,9 +256,9 @@ public partial class GameWindow : Window
                 CanvasJeu.Children.Add(selRing);
             }
 
-            // Fond du cercle, couleur fixe par joueur
-            Color baseColor = isP1Army
-                ? (canAct ? Color.FromRgb(29, 78, 216) : Color.FromRgb(15, 40, 100))   // BLEU
+            // Fond du cercle
+            Color baseColor = own
+                ? (canAct ? Color.FromRgb(29, 78, 216) : Color.FromRgb(15, 40, 100))
                 : Color.FromRgb(185, 28, 28);
 
             var circle = new Ellipse
@@ -350,7 +360,8 @@ public partial class GameWindow : Window
         _vm.UpdateFromGame(_game, _currentPlayer);
         _vm.UpdateSelectedArmy(_selectedArmy, _currentPlayer);
 
-        bool isFirstPlayer = _game.CurrentPlayerIndex == 0;
+        var firstPlayerId = _game.Players.OrderBy(p => p.Id).Select(p => p.Id).First();
+        bool isFirstPlayer = _currentPlayer.Id == firstPlayerId;
 
         GradStop1.Color = isFirstPlayer ? Color.FromRgb(29, 78, 216) : Color.FromRgb(153, 27, 27);
         GradStop2.Color = isFirstPlayer ? Color.FromRgb(13, 42, 112) : Color.FromRgb(80, 10, 10);
@@ -458,7 +469,8 @@ public partial class GameWindow : Window
                 "Defeat", MessageBoxButton.OK, MessageBoxImage.Warning);
             _game.Status = GameStatus.Finished;
             App.Context.SaveChanges();
-            new MainWindow().Show(); Close(); return;
+            ShowReportAndGoMenu();
+            return;
         }
 
         // Économie
@@ -468,7 +480,6 @@ public partial class GameWindow : Window
         App.EconomyService.PayMaintenance(_currentPlayer.Id);
 
         ChargerPartie();
-        _currentPlayer = _game.Players.ToList()[_game.CurrentPlayerIndex];
 
         // Victoire
         var opp = _game.Players.First(p => p.Id != _currentPlayer.Id);
@@ -479,7 +490,8 @@ public partial class GameWindow : Window
                 "Victory!", MessageBoxButton.OK, MessageBoxImage.Information);
             _game.Status = GameStatus.Finished;
             App.Context.SaveChanges();
-            new MainWindow().Show(); Close(); return;
+            ShowReportAndGoMenu();
+            return;
         }
 
         _selectedArmy = null;
@@ -488,6 +500,111 @@ public partial class GameWindow : Window
         MettreAJourPanneau();
         SoundManager.PlayEndTurn();
         AjouterJournal($"─── Turn {_game.TurnNumber} : {_currentPlayer.Name} ───");
+
+        // Rafraîchir le tableau de bord si ouvert
+        _dashboardWindow?.Refresh();
+
+        // Si c'est le tour de l'IA, jouer automatiquement
+        bool isAITurn = App.IsPlayer2AI
+            && _ai != null
+            && _currentPlayer.Id == _game.Players.OrderBy(p => p.Id).Skip(1).First().Id;
+
+        if (isAITurn)
+            PlayAITurn();
+    }
+
+    /// <summary>Exécute le tour de l'IA et affiche le résumé.</summary>
+    private void PlayAITurn()
+    {
+        if (_ai == null) return;
+
+        AjouterJournal("─── AI is playing... ───");
+        _ai.PlayTurn();
+
+        // Afficher le résumé des actions IA
+        foreach (var action in _ai.ActionLog)
+            AjouterJournal($"  ► {action}");
+
+        // Snapshot IA
+        ChargerPartie();
+        App.Context.Snapshots.Add(new TurnSnapshot
+        {
+            TurnNumber = _game.TurnNumber, PlayerId = _currentPlayer.Id, GameId = _game.Id,
+            Gold = _currentPlayer.Gold,
+            ArmyCount = _currentPlayer.Detachments.Count(d => d.Force >= 10),
+            TotalSoldiers = _currentPlayer.Detachments.Sum(d => d.Force),
+            FortificationCount = _currentPlayer.Installations.Count(i => i.Type == InstallationType.Fortification)
+        });
+
+        // Rotation retour au joueur humain
+        var players = _game.Players.ToList();
+        _game.CurrentPlayerIndex = (_game.CurrentPlayerIndex + 1) % players.Count;
+        _game.TurnNumber++;
+        foreach (var p in _game.Players)
+            foreach (var a in p.Detachments)
+                a.Actionable = a.Force >= 10;
+        App.Context.SaveChanges();
+
+        ChargerPartie();
+        _currentPlayer = _game.Players.ToList()[_game.CurrentPlayerIndex];
+
+        // Économie joueur humain
+        foreach (var a in _currentPlayer.Detachments.ToList())
+            App.ArmyService.GainEnergy(a.Id);
+        App.EconomyService.CollectRevenue(_currentPlayer.Id);
+        App.EconomyService.PayMaintenance(_currentPlayer.Id);
+
+        ChargerPartie();
+
+        // Vérifier victoire de l'IA
+        var humanOpp = _game.Players.First(p => p.Id != _currentPlayer.Id);
+        if (!humanOpp.Detachments.Any(d => d.Force >= 10))
+        {
+            SoundManager.PlayVictory();
+            MessageBox.Show($"🏆 {_currentPlayer.Name} wins the war!",
+                "Victory!", MessageBoxButton.OK, MessageBoxImage.Information);
+            _game.Status = GameStatus.Finished;
+            App.Context.SaveChanges();
+            ShowReportAndGoMenu();
+            return;
+        }
+
+        _selectedArmy = null;
+        _movingMode = false;
+        DessinerPlateau();
+        MettreAJourPanneau();
+        AjouterJournal($"─── Turn {_game.TurnNumber} : {_currentPlayer.Name} ───");
+        _dashboardWindow?.Refresh();
+    }
+
+    /// <summary>Affiche le rapport post-partie puis retourne au menu principal.</summary>
+    private void ShowReportAndGoMenu()
+    {
+        try
+        {
+            var report = new GameReportWindow(_gameId);
+            report.ShowDialog();
+        }
+        catch { /* rapport optionnel, on continue */ }
+
+        new MainWindow().Show();
+        Close();
+    }
+
+    // ── Tableau de bord ──────────────────────────────────────────
+    private void BtnDashboard_Click(object sender, RoutedEventArgs e)
+    {
+        if (_dashboardWindow == null || !_dashboardWindow.IsLoaded)
+        {
+            _dashboardWindow = new StatsDashboardWindow(_gameId);
+            _dashboardWindow.Owner = this;
+            _dashboardWindow.Show();
+        }
+        else
+        {
+            _dashboardWindow.Refresh();
+            _dashboardWindow.Activate();
+        }
     }
 
     private void Rafraichir()
@@ -495,7 +612,6 @@ public partial class GameWindow : Window
         _selectedArmy = null;
         _movingMode   = false;
         ChargerPartie();
-        _currentPlayer = _game.Players.ToList()[_game.CurrentPlayerIndex];
         DessinerPlateau();
         MettreAJourPanneau();
     }

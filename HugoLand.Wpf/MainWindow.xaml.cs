@@ -31,6 +31,8 @@ public partial class MainWindow : Window
             var creation = new CreatePlayersWindow();
             if (creation.ShowDialog() == true)
             {
+                App.IsPlayer2AI = creation.IsPlayer2AI;
+
                 var game = App.WorldService.CreateGameFromWorld(
                     selection.SelectedWorld,
                     creation.Player1Name,
@@ -76,5 +78,24 @@ public partial class MainWindow : Window
     {
         MusicManager.Stop();
         Application.Current.Shutdown();
+    }
+
+    private void BtnHistorique_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var hist = new GameHistoryWindow();
+            hist.ShowDialog();
+        }
+        catch (Exception ex)
+        {
+            var inner = ex.InnerException;
+            string msg = $"Type: {ex.GetType().Name}\n\nMessage: {ex.Message}";
+            if (inner != null)
+                msg += $"\n\nInner: {inner.GetType().Name}: {inner.Message}";
+            msg += $"\n\nStack:\n{ex.StackTrace}";
+            MessageBox.Show(msg, "History Error — Full Details",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 }

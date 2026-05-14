@@ -121,6 +121,28 @@
 
                 <!-- Boutons bas -->
                 <StackPanel DockPanel.Dock="Bottom" Margin="10,6">
+                    <Button Content="📊  DASHBOARD"
+                            Background="#1E293B" Foreground="#F59E0B"
+                            BorderBrush="#78350F" BorderThickness="1"
+                            FontSize="10" FontFamily="Consolas"
+                            Padding="0,7" Cursor="Hand"
+                            Click="BtnDashboard_Click" Margin="0,0,0,4">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background" Value="#292524"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
                     <Button Content="QUIT GAME"
                             Background="#1A0A0A" Foreground="#EF4444"
                             BorderBrush="#3F1515" BorderThickness="1"

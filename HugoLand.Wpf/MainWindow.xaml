@@ -112,6 +112,12 @@
                         Background="#064E3B"
                         Click="BtnEditeurMonde_Click" Margin="0,4"/>
 
+                <Button Content="📜  Game History"
+                        Style="{StaticResource PrimaryBtn}"
+                        Background="#1C1917"
+                        BorderBrush="#78350F" BorderThickness="1"
+                        Click="BtnHistorique_Click" Margin="0,4"/>
+
                 <Rectangle Height="1" Fill="#1E293B" Margin="0,20"/>
 
                 <Button Content="✕  Quit"
